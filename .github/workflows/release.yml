@@ -1,0 +1,53 @@
+name: Build BlackFix exe
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-release:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup MSYS2
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: MINGW64
+          update: true
+          install: >-
+            base-devel
+            mingw-w64-x86_64-gcc
+            mingw-w64-x86_64-cmake
+
+      - name: Build exe
+        shell: msys2 {0}
+        run: |
+          cmake -S . -B build -G "MSYS Makefiles" -DCMAKE_C_COMPILER=gcc -DBF_BUILD_VERSION="${GITHUB_SHA}"
+          cmake --build build
+          printf "%s\n" "${GITHUB_SHA}" > version.txt
+
+      - name: Upload exe artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: BlackFix
+          path: build/BlackFix.exe
+          if-no-files-found: error
+
+      - name: Publish latest exe
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: latest
+          name: BlackFix Latest
+          make_latest: true
+          files: |
+            build/BlackFix.exe
+            version.txt
+          overwrite_files: true
