@@ -11,16 +11,34 @@ typedef enum BFSettingsDrop {
     BF_SETTINGS_DROP_LANGUAGE
 } BFSettingsDrop;
 
+typedef enum BFSettingsPanel {
+    BF_SETTINGS_PANEL_SOUND,
+    BF_SETTINGS_PANEL_SCREEN,
+    BF_SETTINGS_PANEL_LANGUAGE,
+    BF_SETTINGS_PANEL_COUNT
+} BFSettingsPanel;
+
 typedef struct BFSettingsState {
     BFFonts fonts;
+    BFSettingsPanel panel;
+    BFSettingsDrop openDrop;
+    RECT panelButtons[BF_SETTINGS_PANEL_COUNT];
+    RECT contentRect;
     RECT themeBox;
     RECT languageBox;
     RECT soundBox;
     RECT volumeTrack;
-    BFSettingsDrop openDrop;
+    RECT clickEffectBox;
+    BFClickEffects effects;
 } BFSettingsState;
 
 static LRESULT CALLBACK BFSettingsWindowProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
+
+static const BFTextKey BF_PANEL_TEXT[BF_SETTINGS_PANEL_COUNT] = {
+    BF_TX_SOUND,
+    BF_TX_SCREEN,
+    BF_TX_LANGUAGE
+};
 
 static const BFTextKey BF_THEME_TEXT[BF_THEME_COUNT] = {
     BF_TX_THEME_TERMINAL,
@@ -77,14 +95,14 @@ static void BFDrawDropList(HDC dc, RECT box, HFONT font, int count, const BFText
     int i;
 
     list.top = box.bottom + 2;
-    list.bottom = list.top + count * 28;
+    list.bottom = list.top + count * 30;
     BFDrawBox(dc, list, palette->panel, palette->border, 1);
 
     for (i = 0; i < count; ++i) {
         row.left = list.left + 1;
-        row.top = list.top + i * 28;
+        row.top = list.top + i * 30;
         row.right = list.right - 1;
-        row.bottom = row.top + 28;
+        row.bottom = row.top + 30;
         if (i == selected) {
             BFFillRectColor(dc, &row, palette->selected);
         }
@@ -101,57 +119,79 @@ static int BFHitDropItem(RECT box, int count, int x, int y)
         return -1;
     }
     list.top = box.bottom + 2;
-    list.bottom = list.top + count * 28;
+    list.bottom = list.top + count * 30;
     if (y < list.top || y >= list.bottom) {
         return -1;
     }
-    return (y - list.top) / 28;
+    return (y - list.top) / 30;
 }
 
-static void BFDrawSoundToggle(HDC dc, RECT rect, HFONT font)
+static void BFDrawToggle(HDC dc, RECT rect, const wchar_t *text, HFONT font, int enabled)
 {
     const BFPalette *palette = BFP();
     RECT mark = rect;
-    RECT text = rect;
+    RECT label = rect;
 
-    mark.right = mark.left + 28;
-    BFDrawBox(dc, mark, BF_Settings.sound ? palette->selected : palette->panel, BF_Settings.sound ? palette->accent : palette->border, BF_Settings.sound ? 2 : 1);
+    mark.right = mark.left + 30;
+    BFDrawBox(dc, mark, enabled ? palette->selected : palette->panel, enabled ? palette->accent : palette->border, enabled ? 2 : 1);
+    BFDrawTextBlock(dc, enabled ? L"✓" : L"", mark, font, palette->accent, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
 
-    BFDrawTextBlock(dc, BF_Settings.sound ? L"✓" : L"", mark, font, palette->accent, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
-
-    text.left = mark.right + 10;
-    BFDrawTextBlock(dc, BFT(BF_TX_SOUND), text, font, palette->text, DT_LEFT | DT_VCENTER | DT_SINGLELINE | DT_END_ELLIPSIS);
+    label.left = mark.right + 12;
+    BFDrawTextBlock(dc, text, label, font, palette->text, DT_LEFT | DT_VCENTER | DT_SINGLELINE | DT_END_ELLIPSIS);
 }
 
-static void BFLayoutSettings(BFSettingsState *state)
+static void BFLayoutSettings(BFSettingsState *state, const RECT *client)
 {
-    int x = 174;
-    int y = 94;
-    int w = 300;
-    int h = 32;
+    int sidebarLeft = BF_MARGIN;
+    int sidebarRight = sidebarLeft + 136;
+    int contentLeft = sidebarRight + 24;
+    int contentRight = BFMaxInt(contentLeft + 300, client->right - BF_MARGIN);
+    int y = 92;
+    int i;
 
-    state->themeBox.left = x;
-    state->themeBox.top = y;
-    state->themeBox.right = x + w;
-    state->themeBox.bottom = y + h;
+    for (i = 0; i < BF_SETTINGS_PANEL_COUNT; ++i) {
+        state->panelButtons[i].left = sidebarLeft;
+        state->panelButtons[i].top = y + i * 48;
+        state->panelButtons[i].right = sidebarRight;
+        state->panelButtons[i].bottom = state->panelButtons[i].top + 38;
+    }
 
-    y += 64;
-    state->soundBox.left = x;
-    state->soundBox.top = y;
-    state->soundBox.right = x + w;
-    state->soundBox.bottom = y + h;
+    state->contentRect.left = contentLeft;
+    state->contentRect.top = 92;
+    state->contentRect.right = contentRight;
+    state->contentRect.bottom = client->bottom - BF_MARGIN;
 
-    y += 62;
-    state->languageBox.left = x;
-    state->languageBox.top = y;
-    state->languageBox.right = x + w;
-    state->languageBox.bottom = y + h;
+    state->themeBox.left = contentLeft + 18;
+    state->themeBox.top = 144;
+    state->themeBox.right = contentRight - 18;
+    state->themeBox.bottom = state->themeBox.top + 34;
 
-    y += 64;
-    state->volumeTrack.left = x;
-    state->volumeTrack.top = y;
-    state->volumeTrack.right = x + w;
-    state->volumeTrack.bottom = y + h;
+    state->clickEffectBox.left = contentLeft + 18;
+    state->clickEffectBox.top = 246;
+    state->clickEffectBox.right = contentRight - 18;
+    state->clickEffectBox.bottom = state->clickEffectBox.top + 34;
+
+    state->soundBox.left = contentLeft + 18;
+    state->soundBox.top = 144;
+    state->soundBox.right = contentRight - 18;
+    state->soundBox.bottom = state->soundBox.top + 34;
+
+    state->languageBox.left = contentLeft + 18;
+    state->languageBox.top = 144;
+    state->languageBox.right = contentRight - 18;
+    state->languageBox.bottom = state->languageBox.top + 34;
+}
+
+static void BFDrawPanelLabel(HDC dc, RECT content, int top, const wchar_t *text, HFONT font)
+{
+    const BFPalette *palette = BFP();
+    RECT label;
+
+    label.left = content.left + 18;
+    label.top = top;
+    label.right = content.right - 18;
+    label.bottom = top + 28;
+    BFDrawTextBlock(dc, text, label, font, palette->muted, DT_LEFT | DT_VCENTER | DT_SINGLELINE | DT_END_ELLIPSIS);
 }
 
 static void BFDrawSettings(HWND hwnd, HDC dc, const RECT *client, BFSettingsState *state)
@@ -159,9 +199,11 @@ static void BFDrawSettings(HWND hwnd, HDC dc, const RECT *client, BFSettingsStat
     const BFPalette *palette = BFP();
     RECT rect;
     RECT volumeBounds;
+    int i;
 
     (void)hwnd;
-    BFLayoutSettings(state);
+    BFLayoutSettings(state, client);
+    SetRectEmpty(&state->volumeTrack);
     BFDrawGrid(dc, client);
 
     rect.left = BF_MARGIN;
@@ -170,38 +212,45 @@ static void BFDrawSettings(HWND hwnd, HDC dc, const RECT *client, BFSettingsStat
     rect.bottom = 58;
     BFDrawTextBlock(dc, BFT(BF_TX_SETTINGS), rect, state->fonts.title, palette->accent, DT_LEFT | DT_VCENTER | DT_SINGLELINE | DT_END_ELLIPSIS);
 
-    rect.left = 38;
-    rect.top = 94;
-    rect.right = 150;
-    rect.bottom = 126;
-    BFDrawTextBlock(dc, BFT(BF_TX_THEME), rect, state->fonts.ui, palette->text, DT_LEFT | DT_VCENTER | DT_SINGLELINE | DT_END_ELLIPSIS);
-    BFDrawControlBox(dc, state->themeBox, BFT(BF_THEME_TEXT[BFClampInt(BF_Settings.theme, 0, BF_THEME_COUNT - 1)]), state->fonts.small, state->openDrop == BF_SETTINGS_DROP_THEME);
-
-    rect.top += 64;
-    rect.bottom += 64;
-    BFDrawTextBlock(dc, BFT(BF_TX_SOUND), rect, state->fonts.ui, palette->text, DT_LEFT | DT_VCENTER | DT_SINGLELINE | DT_END_ELLIPSIS);
-    BFDrawSoundToggle(dc, state->soundBox, state->fonts.small);
-
-    rect.top += 62;
-    rect.bottom += 62;
-    BFDrawTextBlock(dc, BFT(BF_TX_LANGUAGE), rect, state->fonts.ui, palette->text, DT_LEFT | DT_VCENTER | DT_SINGLELINE | DT_END_ELLIPSIS);
-    BFDrawControlBox(dc, state->languageBox, BFT(BF_LANGUAGE_TEXT[BFClampInt(BF_Settings.language, 0, BF_LANG_COUNT - 1)]), state->fonts.small, state->openDrop == BF_SETTINGS_DROP_LANGUAGE);
-
-    rect.top += 64;
-    rect.bottom += 64;
-    BFDrawTextBlock(dc, BFT(BF_TX_VOLUME), rect, state->fonts.ui, palette->text, DT_LEFT | DT_VCENTER | DT_SINGLELINE | DT_END_ELLIPSIS);
-    volumeBounds = state->volumeTrack;
-    volumeBounds.left -= 96;
-    BFDrawVolume(dc, volumeBounds, state->fonts.small, &state->volumeTrack);
-
-    if (state->openDrop == BF_SETTINGS_DROP_THEME) {
-        BFDrawDropList(dc, state->themeBox, state->fonts.small, BF_THEME_COUNT, BF_THEME_TEXT, BFClampInt(BF_Settings.theme, 0, BF_THEME_COUNT - 1));
-    } else if (state->openDrop == BF_SETTINGS_DROP_LANGUAGE) {
-        BFDrawDropList(dc, state->languageBox, state->fonts.small, BF_LANG_COUNT, BF_LANGUAGE_TEXT, BFClampInt(BF_Settings.language, 0, BF_LANG_COUNT - 1));
+    for (i = 0; i < BF_SETTINGS_PANEL_COUNT; ++i) {
+        BFDrawButton(dc, state->panelButtons[i], BFT(BF_PANEL_TEXT[i]), state->fonts.small, state->panel == (BFSettingsPanel)i);
     }
+
+    BFDrawBox(dc, state->contentRect, palette->panel, palette->border, 1);
+
+    if (state->panel == BF_SETTINGS_PANEL_SOUND) {
+        BFDrawPanelLabel(dc, state->contentRect, 112, BFT(BF_TX_SOUND), state->fonts.ui);
+        BFDrawToggle(dc, state->soundBox, BFT(BF_TX_SOUND), state->fonts.small, BF_Settings.sound);
+
+        BFDrawPanelLabel(dc, state->contentRect, 206, BFT(BF_TX_VOLUME), state->fonts.ui);
+        volumeBounds.left = state->contentRect.left + 18;
+        volumeBounds.top = 242;
+        volumeBounds.right = state->contentRect.right - 18;
+        volumeBounds.bottom = 278;
+        BFDrawVolume(dc, volumeBounds, state->fonts.small, &state->volumeTrack);
+    } else if (state->panel == BF_SETTINGS_PANEL_SCREEN) {
+        BFDrawPanelLabel(dc, state->contentRect, 112, BFT(BF_TX_THEME), state->fonts.ui);
+        BFDrawControlBox(dc, state->themeBox, BFT(BF_THEME_TEXT[BFClampInt(BF_Settings.theme, 0, BF_THEME_COUNT - 1)]), state->fonts.small, state->openDrop == BF_SETTINGS_DROP_THEME);
+
+        BFDrawPanelLabel(dc, state->contentRect, 214, BFT(BF_TX_CLICK_EFFECT), state->fonts.ui);
+        BFDrawToggle(dc, state->clickEffectBox, BFT(BF_TX_CLICK_EFFECT), state->fonts.small, BF_Settings.clickEffect);
+
+        if (state->openDrop == BF_SETTINGS_DROP_THEME) {
+            BFDrawDropList(dc, state->themeBox, state->fonts.small, BF_THEME_COUNT, BF_THEME_TEXT, BFClampInt(BF_Settings.theme, 0, BF_THEME_COUNT - 1));
+        }
+    } else {
+        BFDrawPanelLabel(dc, state->contentRect, 112, BFT(BF_TX_LANGUAGE), state->fonts.ui);
+        BFDrawControlBox(dc, state->languageBox, BFT(BF_LANGUAGE_TEXT[BFClampInt(BF_Settings.language, 0, BF_LANG_COUNT - 1)]), state->fonts.small, state->openDrop == BF_SETTINGS_DROP_LANGUAGE);
+
+        if (state->openDrop == BF_SETTINGS_DROP_LANGUAGE) {
+            BFDrawDropList(dc, state->languageBox, state->fonts.small, BF_LANG_COUNT, BF_LANGUAGE_TEXT, BFClampInt(BF_Settings.language, 0, BF_LANG_COUNT - 1));
+        }
+    }
+
+    BFDrawClickEffects(dc, &state->effects);
 }
 
-static void BFHandleSettingsClick(HWND hwnd, BFSettingsState *state, int x, int y)
+static int BFApplyDropClick(BFSettingsState *state, int x, int y)
 {
     int item;
 
@@ -212,7 +261,7 @@ static void BFHandleSettingsClick(HWND hwnd, BFSettingsState *state, int x, int 
             state->openDrop = BF_SETTINGS_DROP_NONE;
             BFSaveState();
             BFInvalidateAllWindows();
-            return;
+            return 1;
         }
     } else if (state->openDrop == BF_SETTINGS_DROP_LANGUAGE) {
         item = BFHitDropItem(state->languageBox, BF_LANG_COUNT, x, y);
@@ -221,33 +270,64 @@ static void BFHandleSettingsClick(HWND hwnd, BFSettingsState *state, int x, int 
             state->openDrop = BF_SETTINGS_DROP_NONE;
             BFSaveState();
             BFInvalidateAllWindows();
+            return 1;
+        }
+    }
+
+    return 0;
+}
+
+static void BFHandleSettingsClick(HWND hwnd, BFSettingsState *state, int x, int y)
+{
+    int i;
+
+    if (BFApplyDropClick(state, x, y)) {
+        return;
+    }
+
+    for (i = 0; i < BF_SETTINGS_PANEL_COUNT; ++i) {
+        if (BFPointInRect(&state->panelButtons[i], x, y)) {
+            state->panel = (BFSettingsPanel)i;
+            state->openDrop = BF_SETTINGS_DROP_NONE;
+            InvalidateRect(hwnd, NULL, FALSE);
             return;
         }
     }
 
-    if (BFPointInRect(&state->themeBox, x, y)) {
-        state->openDrop = state->openDrop == BF_SETTINGS_DROP_THEME ? BF_SETTINGS_DROP_NONE : BF_SETTINGS_DROP_THEME;
-        InvalidateRect(hwnd, NULL, FALSE);
-        return;
-    }
-    if (BFPointInRect(&state->languageBox, x, y)) {
-        state->openDrop = state->openDrop == BF_SETTINGS_DROP_LANGUAGE ? BF_SETTINGS_DROP_NONE : BF_SETTINGS_DROP_LANGUAGE;
-        InvalidateRect(hwnd, NULL, FALSE);
-        return;
-    }
-    if (BFPointInRect(&state->soundBox, x, y)) {
-        BF_Settings.sound = !BF_Settings.sound;
-        state->openDrop = BF_SETTINGS_DROP_NONE;
-        BFSaveState();
-        BFInvalidateAllWindows();
-        return;
-    }
-    if (!IsRectEmpty(&state->volumeTrack) && BFPointInRect(&state->volumeTrack, x, y)) {
-        state->openDrop = BF_SETTINGS_DROP_NONE;
-        BFSetVolumeFromTrack(state->volumeTrack, x);
-        BF_VolumeCaptureWindow = hwnd;
-        SetCapture(hwnd);
-        return;
+    if (state->panel == BF_SETTINGS_PANEL_SOUND) {
+        if (BFPointInRect(&state->soundBox, x, y)) {
+            BF_Settings.sound = !BF_Settings.sound;
+            state->openDrop = BF_SETTINGS_DROP_NONE;
+            BFSaveState();
+            BFInvalidateAllWindows();
+            return;
+        }
+        if (!IsRectEmpty(&state->volumeTrack) && BFPointInRect(&state->volumeTrack, x, y)) {
+            state->openDrop = BF_SETTINGS_DROP_NONE;
+            BFSetVolumeFromTrack(state->volumeTrack, x);
+            BF_VolumeCaptureWindow = hwnd;
+            SetCapture(hwnd);
+            return;
+        }
+    } else if (state->panel == BF_SETTINGS_PANEL_SCREEN) {
+        if (BFPointInRect(&state->themeBox, x, y)) {
+            state->openDrop = state->openDrop == BF_SETTINGS_DROP_THEME ? BF_SETTINGS_DROP_NONE : BF_SETTINGS_DROP_THEME;
+            InvalidateRect(hwnd, NULL, FALSE);
+            return;
+        }
+        if (BFPointInRect(&state->clickEffectBox, x, y)) {
+            BF_Settings.clickEffect = !BF_Settings.clickEffect;
+            state->openDrop = BF_SETTINGS_DROP_NONE;
+            BFSaveState();
+            BFInvalidateAllWindows();
+            return;
+        }
+    } else {
+        if (BFPointInRect(&state->languageBox, x, y)) {
+            state->openDrop = state->openDrop == BF_SETTINGS_DROP_LANGUAGE ? BF_SETTINGS_DROP_NONE : BF_SETTINGS_DROP_LANGUAGE;
+            InvalidateRect(hwnd, NULL, FALSE);
+            return;
+        }
     }
 
     state->openDrop = BF_SETTINGS_DROP_NONE;
@@ -274,7 +354,7 @@ void BFOpenSettingsWindow(HWND parent)
         SetForegroundWindow(BF_SettingsWindow);
         return;
     }
-    BF_SettingsWindow = CreateWindowExW(WS_EX_APPWINDOW, BF_SETTINGS_CLASS, BFT(BF_TX_SETTINGS), WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_VISIBLE, CW_USEDEFAULT, CW_USEDEFAULT, 560, 430, owner, NULL, BF_Instance, NULL);
+    BF_SettingsWindow = CreateWindowExW(WS_EX_APPWINDOW, BF_SETTINGS_CLASS, BFT(BF_TX_SETTINGS), WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_VISIBLE, CW_USEDEFAULT, CW_USEDEFAULT, 660, 460, owner, NULL, BF_Instance, NULL);
     if (BF_SettingsWindow != NULL) {
         ShowWindow(BF_SettingsWindow, SW_SHOWNORMAL);
         UpdateWindow(BF_SettingsWindow);
@@ -300,24 +380,30 @@ static LRESULT CALLBACK BFSettingsWindowProc(HWND hwnd, UINT message, WPARAM wPa
         if (state == NULL) {
             return -1;
         }
+        state->panel = BF_SETTINGS_PANEL_SOUND;
         BFCreateFonts(&state->fonts, 20);
         SetWindowLongPtrW(hwnd, GWLP_USERDATA, (LONG_PTR)state);
-        BFLayoutSettings(state);
+        SetTimer(hwnd, BF_TIMER_ANIMATION, 80, NULL);
         return 0;
 
     case WM_ERASEBKGND:
         return 1;
 
+    case WM_GETMINMAXINFO:
+        ((MINMAXINFO *)lParam)->ptMinTrackSize.x = 600;
+        ((MINMAXINFO *)lParam)->ptMinTrackSize.y = 420;
+        return 0;
+
     case WM_SIZE:
-        if (state != NULL) {
-            BFLayoutSettings(state);
-            InvalidateRect(hwnd, NULL, FALSE);
-        }
+        InvalidateRect(hwnd, NULL, FALSE);
         return 0;
 
     case WM_LBUTTONDOWN:
         if (state != NULL) {
-            BFHandleSettingsClick(hwnd, state, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+            int x = GET_X_LPARAM(lParam);
+            int y = GET_Y_LPARAM(lParam);
+            BFAddClickEffect(&state->effects, x, y);
+            BFHandleSettingsClick(hwnd, state, x, y);
         }
         return 0;
 
@@ -332,6 +418,15 @@ static LRESULT CALLBACK BFSettingsWindowProc(HWND hwnd, UINT message, WPARAM wPa
         if (BF_VolumeCaptureWindow == hwnd) {
             BF_VolumeCaptureWindow = NULL;
             ReleaseCapture();
+            return 0;
+        }
+        break;
+
+    case WM_TIMER:
+        if (state != NULL && wParam == BF_TIMER_ANIMATION) {
+            if (BFStepClickEffects(&state->effects)) {
+                InvalidateRect(hwnd, NULL, FALSE);
+            }
             return 0;
         }
         break;

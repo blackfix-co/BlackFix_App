@@ -28,6 +28,8 @@
 #define BF_PATH_CAPACITY 1024
 #define BF_TIMER_PREVIEW 4001
 #define BF_TIMER_ANIMATION 4002
+#define BF_CLICK_EFFECT_MAX 48
+#define BF_CLICK_EFFECT_LIFE 18
 
 typedef enum BFSortMode {
     BF_SORT_NEWEST,
@@ -72,6 +74,8 @@ typedef enum BFTextKey {
     BF_TX_LINK,
     BF_TX_VOLUME,
     BF_TX_SETTINGS,
+    BF_TX_SCREEN,
+    BF_TX_CLICK_EFFECT,
     BF_TX_THEME,
     BF_TX_SOUND,
     BF_TX_LANGUAGE,
@@ -109,7 +113,28 @@ typedef struct BFAppSettings {
     int sound;
     int language;
     int volume;
+    int clickEffect;
 } BFAppSettings;
+
+typedef struct BFDragScroll {
+    int active;
+    int moved;
+    int startX;
+    int startY;
+    int startScroll;
+} BFDragScroll;
+
+typedef struct BFClickEffect {
+    int active;
+    int x;
+    int y;
+    int age;
+} BFClickEffect;
+
+typedef struct BFClickEffects {
+    BFClickEffect items[BF_CLICK_EFFECT_MAX];
+    int next;
+} BFClickEffects;
 
 typedef struct BFFonts {
     HFONT title;
@@ -202,6 +227,12 @@ void BFDrawBox(HDC dc, RECT rect, COLORREF fill, COLORREF border, int width);
 void BFDrawLine(HDC dc, int x1, int y1, int x2, int y2, COLORREF color, int width);
 void BFDrawVolume(HDC dc, RECT bounds, HFONT font, RECT *trackOut);
 void BFSetVolumeFromTrack(RECT track, int x);
+void BFBeginDragScroll(BFDragScroll *drag, int x, int y, int scrollY);
+int BFUpdateDragScroll(BFDragScroll *drag, int x, int y, int *scrollY);
+int BFEndDragScroll(BFDragScroll *drag);
+void BFAddClickEffect(BFClickEffects *effects, int x, int y);
+int BFStepClickEffects(BFClickEffects *effects);
+void BFDrawClickEffects(HDC dc, const BFClickEffects *effects);
 
 int BFColumnCount(int width);
 void BFDrawSortBar(HDC dc, RECT bounds, HFONT font, RECT sortButtons[3], RECT *volumeTrack, BFSortMode sort);

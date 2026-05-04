@@ -26,7 +26,7 @@ HWND BF_CheonWindow;
 HWND BF_CioWindow;
 HWND BF_SettingsWindow;
 HWND BF_AlbumWindows[BF_MAX_ALBUMS];
-BFAppSettings BF_Settings = {BF_THEME_TERMINAL, 1, BF_LANG_KO, 80};
+BFAppSettings BF_Settings = {BF_THEME_TERMINAL, 1, BF_LANG_KO, 80, 1};
 int BF_AnimTick;
 HWND BF_VolumeCaptureWindow;
 
@@ -53,7 +53,7 @@ static const wchar_t *BF_Text[BF_LANG_COUNT][BF_TX_COUNT] = {
     {
         L"앨범", L"노래", L"굿즈", L"천", L"씨오", L"PIXEL CATALOG", L"앨범 목록", L"전체 노래", L"굿즈",
         L"최신순", L"오래된순", L"별표 순", L"별표", L"영상 목록", L"쇼츠 목록",
-        L"1분 미리보기", L"이동", L"소리", L"설정", L"테마", L"소리", L"언어",
+        L"1분 미리보기", L"이동", L"소리", L"설정", L"화면", L"마우스 클릭 이펙트", L"테마", L"소리", L"언어설정",
         L"표시할 항목이 없습니다.", L"터미널", L"다크", L"우주", L"책", L"밝은 픽셀", L"딥 그린",
         L"한국어", L"영어", L"일본어",
         L"미리보기 파일이 없습니다. media 폴더에 파일을 넣거나 BF_Content.c의 previewSource를 수정하세요.",
@@ -63,7 +63,7 @@ static const wchar_t *BF_Text[BF_LANG_COUNT][BF_TX_COUNT] = {
     {
         L"Albums", L"Songs", L"Goods", L"Cheon", L"Cio", L"PIXEL CATALOG", L"Albums", L"All Songs", L"Goods",
         L"Newest", L"Oldest", L"Star Order", L"Stars", L"Videos", L"Shorts",
-        L"1 min preview", L"Open", L"Sound", L"Settings", L"Theme", L"Sound", L"Language",
+        L"1 min preview", L"Open", L"Sound", L"Settings", L"Screen", L"Mouse click effect", L"Theme", L"Sound", L"Language",
         L"No items to show.", L"Terminal", L"Dark", L"Space", L"Book", L"Light Pixel", L"Deep Green",
         L"Korean", L"English", L"Japanese",
         L"Preview file is missing. Put the file in the media folder or edit previewSource in BF_Content.c.",
@@ -73,7 +73,7 @@ static const wchar_t *BF_Text[BF_LANG_COUNT][BF_TX_COUNT] = {
     {
         L"アルバム", L"曲", L"グッズ", L"チョン", L"シオ", L"PIXEL CATALOG", L"アルバム", L"全曲", L"グッズ",
         L"新しい順", L"古い順", L"星順", L"星", L"動画リスト", L"ショート",
-        L"1分プレビュー", L"移動", L"音量", L"設定", L"テーマ", L"音", L"言語",
+        L"1分プレビュー", L"移動", L"音量", L"設定", L"画面", L"クリック効果", L"テーマ", L"音", L"言語",
         L"表示する項目がありません。", L"ターミナル", L"ダーク", L"宇宙", L"本", L"ライトピクセル", L"ディープグリーン",
         L"韓国語", L"英語", L"日本語",
         L"プレビューファイルがありません。mediaフォルダーに置くか、BF_Content.cのpreviewSourceを修正してください。",
@@ -357,6 +357,120 @@ void BFSetVolumeFromTrack(RECT track, int x)
     BFInvalidateAllWindows();
 }
 
+void BFBeginDragScroll(BFDragScroll *drag, int x, int y, int scrollY)
+{
+    drag->active = 1;
+    drag->moved = 0;
+    drag->startX = x;
+    drag->startY = y;
+    drag->startScroll = scrollY;
+}
+
+int BFUpdateDragScroll(BFDragScroll *drag, int x, int y, int *scrollY)
+{
+    int dx;
+    int dy;
+    int next;
+
+    if (drag == NULL || !drag->active) {
+        return 0;
+    }
+
+    dx = x - drag->startX;
+    dy = y - drag->startY;
+    if (!drag->moved && (dx * dx + dy * dy) < 25) {
+        return 0;
+    }
+
+    drag->moved = 1;
+    next = drag->startScroll - dy;
+    if (*scrollY != next) {
+        *scrollY = next;
+        return 1;
+    }
+
+    return 0;
+}
+
+int BFEndDragScroll(BFDragScroll *drag)
+{
+    int wasClick;
+
+    if (drag == NULL || !drag->active) {
+        return 0;
+    }
+
+    wasClick = !drag->moved;
+    drag->active = 0;
+    drag->moved = 0;
+    return wasClick;
+}
+
+void BFAddClickEffect(BFClickEffects *effects, int x, int y)
+{
+    BFClickEffect *effect;
+
+    if (effects == NULL || !BF_Settings.clickEffect) {
+        return;
+    }
+
+    effect = &effects->items[effects->next % BF_CLICK_EFFECT_MAX];
+    effect->active = 1;
+    effect->x = x;
+    effect->y = y;
+    effect->age = 0;
+    effects->next = (effects->next + 1) % BF_CLICK_EFFECT_MAX;
+}
+
+int BFStepClickEffects(BFClickEffects *effects)
+{
+    int i;
+    int changed = 0;
+
+    if (effects == NULL) {
+        return 0;
+    }
+
+    for (i = 0; i < BF_CLICK_EFFECT_MAX; ++i) {
+        if (effects->items[i].active) {
+            changed = 1;
+            ++effects->items[i].age;
+            if (effects->items[i].age > BF_CLICK_EFFECT_LIFE) {
+                effects->items[i].active = 0;
+            }
+        }
+    }
+
+    return changed;
+}
+
+void BFDrawClickEffects(HDC dc, const BFClickEffects *effects)
+{
+    const BFPalette *palette = BFP();
+    int i;
+
+    if (effects == NULL || !BF_Settings.clickEffect) {
+        return;
+    }
+
+    for (i = 0; i < BF_CLICK_EFFECT_MAX; ++i) {
+        const BFClickEffect *effect = &effects->items[i];
+        RECT box;
+        int radius;
+
+        if (!effect->active) {
+            continue;
+        }
+
+        radius = 6 + effect->age * 2;
+        box.left = effect->x - radius;
+        box.top = effect->y - radius;
+        box.right = effect->x + radius;
+        box.bottom = effect->y + radius;
+        BFDrawBox(dc, box, palette->panelAlt, palette->accent, 1);
+    }
+}
+
 int BFColumnCount(int width)
 {
     if (width >= 980) {
@@ -527,6 +641,7 @@ void BFSaveState(void)
     fwprintf(file, L"sound=%d\n", BF_Settings.sound);
     fwprintf(file, L"language=%d\n", BF_Settings.language);
     fwprintf(file, L"volume=%d\n", BF_Settings.volume);
+    fwprintf(file, L"clickEffect=%d\n", BF_Settings.clickEffect);
     fwprintf(file, L"nextStar=%u\n", BF_NextStarOrder);
 
     for (i = 0; i < BF_StarCount; ++i) {
@@ -545,6 +660,7 @@ void BFLoadState(void)
     BF_Settings.sound = 1;
     BF_Settings.language = BF_LANG_KO;
     BF_Settings.volume = 80;
+    BF_Settings.clickEffect = 1;
     BF_StarCount = 0;
     BF_NextStarOrder = 1;
 
@@ -567,6 +683,8 @@ void BFLoadState(void)
             BF_Settings.language = BFClampInt(_wtoi(text + 9), 0, BF_LANG_COUNT - 1);
         } else if (wcsncmp(text, L"volume=", 7) == 0) {
             BF_Settings.volume = BFClampInt(_wtoi(text + 7), 0, 100);
+        } else if (wcsncmp(text, L"clickEffect=", 12) == 0) {
+            BF_Settings.clickEffect = _wtoi(text + 12) != 0;
         } else if (wcsncmp(text, L"nextStar=", 9) == 0) {
             BF_NextStarOrder = (unsigned int)BFMaxInt(1, _wtoi(text + 9));
         } else if (wcsncmp(text, L"star=", 5) == 0 && BF_StarCount < BF_MAX_STARS) {

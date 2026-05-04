@@ -31,6 +31,8 @@ typedef struct BFMemberState {
     int sideHitCount;
     BFMediaHit mediaHits[BF_MAX_HITS];
     int mediaHitCount;
+    BFDragScroll drag;
+    BFClickEffects effects;
 } BFMemberState;
 
 static LRESULT CALLBACK BFMemberWindowProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
@@ -287,6 +289,10 @@ static LRESULT CALLBACK BFMemberWindowProc(HWND hwnd, UINT message, WPARAM wPara
         return TRUE;
     }
 
+    case WM_CREATE:
+        SetTimer(hwnd, BF_TIMER_ANIMATION, 80, NULL);
+        return 0;
+
     case WM_ERASEBKGND:
         return 1;
 
@@ -297,7 +303,18 @@ static LRESULT CALLBACK BFMemberWindowProc(HWND hwnd, UINT message, WPARAM wPara
 
     case WM_LBUTTONDOWN:
         if (state != NULL) {
-            BFHandleMemberClick(hwnd, state, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+            int x = GET_X_LPARAM(lParam);
+            int y = GET_Y_LPARAM(lParam);
+            BFAddClickEffect(&state->effects, x, y);
+            if (!IsRectEmpty(&state->volumeTrack) && BFPointInRect(&state->volumeTrack, x, y)) {
+                BFSetVolumeFromTrack(state->volumeTrack, x);
+                BF_VolumeCaptureWindow = hwnd;
+                SetCapture(hwnd);
+                return 0;
+            }
+            BFBeginDragScroll(&state->drag, x, y, state->scrollY);
+            SetCapture(hwnd);
+            InvalidateRect(hwnd, NULL, FALSE);
         }
         return 0;
 
@@ -306,12 +323,27 @@ static LRESULT CALLBACK BFMemberWindowProc(HWND hwnd, UINT message, WPARAM wPara
             BFSetVolumeFromTrack(state->volumeTrack, GET_X_LPARAM(lParam));
             return 0;
         }
+        if (state != NULL && state->drag.active && (wParam & MK_LBUTTON) != 0) {
+            int next = state->scrollY;
+            if (BFUpdateDragScroll(&state->drag, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam), &next)) {
+                BFSetMemberScroll(hwnd, state, next);
+            }
+            return 0;
+        }
         break;
 
     case WM_LBUTTONUP:
         if (BF_VolumeCaptureWindow == hwnd) {
             BF_VolumeCaptureWindow = NULL;
             ReleaseCapture();
+            return 0;
+        }
+        if (state != NULL && state->drag.active) {
+            int click = BFEndDragScroll(&state->drag);
+            ReleaseCapture();
+            if (click) {
+                BFHandleMemberClick(hwnd, state, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+            }
             return 0;
         }
         break;
@@ -324,6 +356,12 @@ static LRESULT CALLBACK BFMemberWindowProc(HWND hwnd, UINT message, WPARAM wPara
         return 0;
 
     case WM_TIMER:
+        if (state != NULL && wParam == BF_TIMER_ANIMATION) {
+            if (BFStepClickEffects(&state->effects)) {
+                InvalidateRect(hwnd, NULL, FALSE);
+            }
+            return 0;
+        }
         BFHandlePreviewTimer(hwnd, wParam);
         return 0;
 
@@ -340,6 +378,7 @@ static LRESULT CALLBACK BFMemberWindowProc(HWND hwnd, UINT message, WPARAM wPara
                 BFDrawGrid(paint.memoryDc, &paint.client);
                 BFDrawHeader(paint.memoryDc, &paint.client, &state->fonts, title, BFT(BF_TX_VIDEO_LIST));
                 BFDrawMemberContent(hwnd, paint.memoryDc, &paint.client, state);
+                BFDrawClickEffects(paint.memoryDc, &state->effects);
                 BFEndBufferedPaint(hwnd, &paint);
                 return 0;
             }
