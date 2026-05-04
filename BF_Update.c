@@ -76,6 +76,10 @@ void BFCheckForUpdate(void)
     wchar_t exePath[BF_PATH_CAPACITY];
     wchar_t remoteVersion[128];
 
+    if (wcscmp(BF_BUILD_VERSION, L"local") == 0) {
+        return;
+    }
+
     if (GetTempPathW(sizeof(tempPath) / sizeof(tempPath[0]), tempPath) == 0) {
         return;
     }

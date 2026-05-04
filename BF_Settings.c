@@ -58,16 +58,7 @@ static void BFDrawControlBox(HDC dc, RECT rect, const wchar_t *text, HFONT font,
     const BFPalette *palette = BFP();
     RECT textRect = rect;
     RECT arrow = rect;
-    HBRUSH brush = CreateSolidBrush(selected ? palette->selected : palette->panel);
-    HPEN pen = CreatePen(PS_SOLID, selected ? 2 : 1, selected ? palette->accent : palette->border);
-    HGDIOBJ oldBrush = SelectObject(dc, brush);
-    HGDIOBJ oldPen = SelectObject(dc, pen);
-
-    Rectangle(dc, rect.left, rect.top, rect.right, rect.bottom);
-    SelectObject(dc, oldPen);
-    SelectObject(dc, oldBrush);
-    DeleteObject(pen);
-    DeleteObject(brush);
+    BFDrawBox(dc, rect, selected ? palette->selected : palette->panel, selected ? palette->accent : palette->border, selected ? 2 : 1);
 
     textRect.left += 10;
     textRect.right -= 34;
@@ -84,22 +75,10 @@ static void BFDrawDropList(HDC dc, RECT box, HFONT font, int count, const BFText
     RECT list = box;
     RECT row;
     int i;
-    HBRUSH brush;
-    HPEN pen;
-    HGDIOBJ oldBrush;
-    HGDIOBJ oldPen;
 
     list.top = box.bottom + 2;
     list.bottom = list.top + count * 28;
-    brush = CreateSolidBrush(palette->panel);
-    pen = CreatePen(PS_SOLID, 1, palette->border);
-    oldBrush = SelectObject(dc, brush);
-    oldPen = SelectObject(dc, pen);
-    Rectangle(dc, list.left, list.top, list.right, list.bottom);
-    SelectObject(dc, oldPen);
-    SelectObject(dc, oldBrush);
-    DeleteObject(pen);
-    DeleteObject(brush);
+    BFDrawBox(dc, list, palette->panel, palette->border, 1);
 
     for (i = 0; i < count; ++i) {
         row.left = list.left + 1;
@@ -107,9 +86,7 @@ static void BFDrawDropList(HDC dc, RECT box, HFONT font, int count, const BFText
         row.right = list.right - 1;
         row.bottom = row.top + 28;
         if (i == selected) {
-            HBRUSH selectedBrush = CreateSolidBrush(palette->selected);
-            FillRect(dc, &row, selectedBrush);
-            DeleteObject(selectedBrush);
+            BFFillRectColor(dc, &row, palette->selected);
         }
         row.left += 10;
         row.right -= 10;
@@ -136,17 +113,9 @@ static void BFDrawSoundToggle(HDC dc, RECT rect, HFONT font)
     const BFPalette *palette = BFP();
     RECT mark = rect;
     RECT text = rect;
-    HBRUSH brush = CreateSolidBrush(BF_Settings.sound ? palette->selected : palette->panel);
-    HPEN pen = CreatePen(PS_SOLID, BF_Settings.sound ? 2 : 1, BF_Settings.sound ? palette->accent : palette->border);
-    HGDIOBJ oldBrush = SelectObject(dc, brush);
-    HGDIOBJ oldPen = SelectObject(dc, pen);
 
     mark.right = mark.left + 28;
-    Rectangle(dc, mark.left, mark.top, mark.right, mark.bottom);
-    SelectObject(dc, oldPen);
-    SelectObject(dc, oldBrush);
-    DeleteObject(pen);
-    DeleteObject(brush);
+    BFDrawBox(dc, mark, BF_Settings.sound ? palette->selected : palette->panel, BF_Settings.sound ? palette->accent : palette->border, BF_Settings.sound ? 2 : 1);
 
     BFDrawTextBlock(dc, BF_Settings.sound ? L"✓" : L"", mark, font, palette->accent, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
 

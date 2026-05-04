@@ -208,7 +208,7 @@ void BFEndBufferedPaint(HWND hwnd, BFPaintBuffer *buffer)
     EndPaint(hwnd, &buffer->ps);
 }
 
-static void BFFillRectColor(HDC dc, const RECT *rect, COLORREF color)
+void BFFillRectColor(HDC dc, const RECT *rect, COLORREF color)
 {
     HBRUSH brush = CreateSolidBrush(color);
     FillRect(dc, rect, brush);
@@ -225,7 +225,7 @@ void BFDrawLine(HDC dc, int x1, int y1, int x2, int y2, COLORREF color, int widt
     DeleteObject(pen);
 }
 
-static void BFDrawBox(HDC dc, RECT rect, COLORREF fill, COLORREF border, int width)
+void BFDrawBox(HDC dc, RECT rect, COLORREF fill, COLORREF border, int width)
 {
     HBRUSH brush = CreateSolidBrush(fill);
     HPEN pen = CreatePen(PS_SOLID, width, border);

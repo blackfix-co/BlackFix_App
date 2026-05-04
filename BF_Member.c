@@ -72,17 +72,7 @@ static void BFDrawSidebar(HDC dc, BFMemberState *state)
     size_t i;
 
     state->sideHitCount = 0;
-    {
-        HBRUSH brush = CreateSolidBrush(palette->panel);
-        HPEN pen = CreatePen(PS_SOLID, 1, palette->border);
-        HGDIOBJ oldBrush = SelectObject(dc, brush);
-        HGDIOBJ oldPen = SelectObject(dc, pen);
-        Rectangle(dc, rect.left, rect.top, rect.right, rect.bottom);
-        SelectObject(dc, oldPen);
-        SelectObject(dc, oldBrush);
-        DeleteObject(pen);
-        DeleteObject(brush);
-    }
+    BFDrawBox(dc, rect, palette->panel, palette->border, 1);
 
     row.left = rect.left + 14;
     row.top = rect.top + 14;

@@ -197,6 +197,8 @@ void BFDrawGrid(HDC dc, const RECT *client);
 void BFDrawHeader(HDC dc, const RECT *client, const BFFonts *fonts, const wchar_t *title, const wchar_t *subtitle);
 void BFDrawButton(HDC dc, RECT rect, const wchar_t *text, HFONT font, int selected);
 void BFDrawTextBlock(HDC dc, const wchar_t *text, RECT rect, HFONT font, COLORREF color, UINT format);
+void BFFillRectColor(HDC dc, const RECT *rect, COLORREF color);
+void BFDrawBox(HDC dc, RECT rect, COLORREF fill, COLORREF border, int width);
 void BFDrawLine(HDC dc, int x1, int y1, int x2, int y2, COLORREF color, int width);
 void BFDrawVolume(HDC dc, RECT bounds, HFONT font, RECT *trackOut);
 void BFSetVolumeFromTrack(RECT track, int x);

@@ -42,27 +42,13 @@ static void BFDrawAlbumCard(HDC dc, RECT card, const BFFonts *fonts, const BFAlb
     RECT desc;
     RECT accent;
 
-    {
-        HBRUSH brush = CreateSolidBrush(palette->panel);
-        HPEN pen = CreatePen(PS_SOLID, 1, palette->border);
-        HGDIOBJ oldBrush = SelectObject(dc, brush);
-        HGDIOBJ oldPen = SelectObject(dc, pen);
-        Rectangle(dc, card.left, card.top, card.right, card.bottom);
-        SelectObject(dc, oldPen);
-        SelectObject(dc, oldBrush);
-        DeleteObject(pen);
-        DeleteObject(brush);
-    }
+    BFDrawBox(dc, card, palette->panel, palette->border, 1);
 
     accent.left = card.left;
     accent.top = card.top;
     accent.right = card.left + 6;
     accent.bottom = card.bottom;
-    {
-        HBRUSH brush = CreateSolidBrush(palette->selected);
-        FillRect(dc, &accent, brush);
-        DeleteObject(brush);
-    }
+    BFFillRectColor(dc, &accent, palette->selected);
 
     title.left = card.left + 18;
     title.top = card.top + 14;
