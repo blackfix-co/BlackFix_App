@@ -4,7 +4,9 @@
 
 처음 실행하면 대한민국 저작권법과 콘텐츠 이용 책임을 안내하는 확인 화면이 먼저 열립니다. 확인 후 설치 경로를 선택할 수 있고, 바탕화면 바로가기 옵션을 켜면 `BlackFix_App` 바로가기가 생성됩니다.
 
-직접 추가하거나 수정할 콘텐츠는 [BF_Content.c](C:/Users/rasud/Desktop/BlackFix/BF_Content.c)에 모여 있습니다.
+다운로드 받은 릴리스 exe 사용자는 앱 안에서 앨범, 노래, 영상, 굿즈를 추가하거나 수정할 수 없습니다. 콘텐츠는 빌드 시점에 실행 파일 안으로 들어갑니다.
+
+관리자가 소스에서 직접 추가하거나 수정할 콘텐츠는 [BF_Content.c](C:/Users/rasud/Desktop/BlackFix/BF_Content.c)에 모여 있습니다.
 
 앨범은 `BF_ALBUMS` 배열에 추가합니다.
 

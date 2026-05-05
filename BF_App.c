@@ -36,6 +36,7 @@ static BFStarEntry BF_Stars[BF_MAX_STARS];
 static size_t BF_StarCount;
 static unsigned int BF_NextStarOrder = 1;
 static unsigned int BF_EffectSeed = 0x4bf123u;
+static ULONGLONG BF_AnimStartMs;
 static int BF_PreviewOpen;
 static HWND BF_PreviewOwner;
 static wchar_t BF_PreviewId[96];
@@ -60,7 +61,7 @@ static const wchar_t *BF_Text[BF_LANG_COUNT][BF_TX_COUNT] = {
         L"표시할 항목이 없습니다.", L"터미널", L"다크", L"우주", L"책", L"밝은 픽셀", L"딥 그린",
         L"불", L"물", L"우주", L"픽셀",
         L"한국어", L"영어", L"일본어",
-        L"미리보기 파일이 없습니다. media 폴더에 파일을 넣거나 BF_Content.c의 previewSource를 수정하세요.",
+        L"미리보기 파일이 없습니다.",
         L"미리보기를 재생할 수 없습니다.",
         L"1분 미리보기 재생 중"
     },
@@ -72,7 +73,7 @@ static const wchar_t *BF_Text[BF_LANG_COUNT][BF_TX_COUNT] = {
         L"No items to show.", L"Terminal", L"Dark", L"Space", L"Book", L"Light Pixel", L"Deep Green",
         L"Fire", L"Water", L"Space", L"Pixel",
         L"Korean", L"English", L"Japanese",
-        L"Preview file is missing. Put the file in the media folder or edit previewSource in BF_Content.c.",
+        L"Preview file is missing.",
         L"Could not play the preview.",
         L"Playing 1 minute preview"
     },
@@ -84,7 +85,7 @@ static const wchar_t *BF_Text[BF_LANG_COUNT][BF_TX_COUNT] = {
         L"表示する項目がありません。", L"ターミナル", L"ダーク", L"宇宙", L"本", L"ライトピクセル", L"ディープグリーン",
         L"火", L"水", L"宇宙", L"ピクセル",
         L"韓国語", L"英語", L"日本語",
-        L"プレビューファイルがありません。mediaフォルダーに置くか、BF_Content.cのpreviewSourceを修正してください。",
+        L"プレビューファイルがありません。",
         L"プレビューを再生できません。",
         L"1分プレビュー再生中"
     }
@@ -257,16 +258,27 @@ void BFDrawTextBlock(HDC dc, const wchar_t *text, RECT rect, HFONT font, COLORRE
     SelectObject(dc, oldFont);
 }
 
+static int BFCurrentAnimationTick(void)
+{
+    ULONGLONG now = GetTickCount64();
+    if (BF_AnimStartMs == 0) {
+        BF_AnimStartMs = now;
+    }
+    return (int)((now - BF_AnimStartMs) / BF_EFFECT_TIMER_MS);
+}
+
 void BFDrawGrid(HDC dc, const RECT *client)
 {
     const BFPalette *palette = BFP();
     int x;
     int y;
-    int offset = BF_AnimTick % 16;
-    int scanY = client->top + (BF_AnimTick * 2) % BFMaxInt(1, client->bottom - client->top);
+    int tick = BFCurrentAnimationTick();
+    int offset = tick % 16;
+    int scanY = client->top + (tick * 2) % BFMaxInt(1, client->bottom - client->top);
     HPEN pen = CreatePen(PS_SOLID, 1, palette->grid);
     HGDIOBJ oldPen;
 
+    BF_AnimTick = tick;
     BFFillRectColor(dc, client, palette->bg);
     oldPen = SelectObject(dc, pen);
     for (x = client->left - offset; x < client->right; x += 16) {
@@ -1077,7 +1089,7 @@ void BFHandlePreviewTimer(HWND hwnd, WPARAM timerId)
     if (timerId == BF_TIMER_PREVIEW) {
         BFStopPreview();
     } else if (timerId == BF_TIMER_ANIMATION) {
-        ++BF_AnimTick;
+        BF_AnimTick = BFCurrentAnimationTick();
         InvalidateRect(hwnd, NULL, FALSE);
     }
 }
