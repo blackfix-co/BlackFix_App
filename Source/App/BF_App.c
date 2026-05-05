@@ -52,8 +52,7 @@ static const BFPalette BF_Palettes[BF_THEME_COUNT] = {
     {RGB(1, 5, 2), RGB(3, 17, 7), RGB(5, 28, 11), RGB(7, 43, 14), RGB(183, 255, 195), RGB(92, 176, 105), RGB(76, 255, 94), RGB(24, 92, 35), RGB(16, 86, 28), RGB(22, 112, 41)},
     {RGB(199, 150, 78), RGB(218, 168, 91), RGB(188, 133, 63), RGB(75, 52, 31), RGB(30, 25, 20), RGB(78, 54, 33), RGB(20, 20, 17), RGB(99, 70, 43), RGB(235, 220, 184), RGB(32, 30, 26)},
     {RGB(34, 35, 38), RGB(238, 238, 230), RGB(90, 97, 106), RGB(48, 52, 58), RGB(24, 27, 31), RGB(70, 76, 84), RGB(27, 132, 184), RGB(86, 92, 101), RGB(196, 224, 242), RGB(170, 207, 230)},
-    {RGB(247, 249, 250), RGB(255, 255, 255), RGB(235, 240, 244), RGB(212, 222, 230), RGB(25, 31, 36), RGB(91, 103, 113), RGB(15, 124, 90), RGB(169, 184, 194), RGB(210, 237, 227), RGB(224, 232, 238)},
-    {RGB(246, 242, 231), RGB(255, 253, 244), RGB(236, 229, 214), RGB(99, 109, 111), RGB(24, 25, 26), RGB(93, 91, 86), RGB(29, 107, 154), RGB(163, 151, 130), RGB(216, 235, 244), RGB(227, 219, 201)}
+    {RGB(247, 249, 250), RGB(255, 255, 255), RGB(235, 240, 244), RGB(212, 222, 230), RGB(25, 31, 36), RGB(91, 103, 113), RGB(15, 124, 90), RGB(169, 184, 194), RGB(210, 237, 227), RGB(224, 232, 238)}
 };
 
 static const wchar_t *BF_Text[BF_LANG_COUNT][BF_TX_COUNT] = {
@@ -62,7 +61,7 @@ static const wchar_t *BF_Text[BF_LANG_COUNT][BF_TX_COUNT] = {
         L"최신순", L"오래된순", L"별표 순", L"별표", L"영상 목록", L"쇼츠 목록",
         L"1분 미리보기", L"이동", L"소리", L"설정", L"화면", L"마우스 클릭 이펙트",
         L"이펙트 종류", L"이펙트 속도", L"이펙트 시간", L"이펙트 불투명도", L"테마", L"소리", L"언어설정", L"전체 영상",
-        L"표시할 항목이 없습니다.", L"터미널", L"다크", L"우주", L"책", L"밝은 픽셀", L"딥 그린", L"바둑판", L"체스판", L"화이트", L"악보",
+        L"표시할 항목이 없습니다.", L"터미널", L"다크", L"우주", L"책", L"밝은 픽셀", L"딥 그린", L"바둑판", L"체스판", L"화이트",
         L"불", L"물", L"우주", L"픽셀", L"바둑돌", L"체스말", L"음표",
         L"한국어", L"영어", L"일본어",
         L"미리보기 파일이 없습니다.",
@@ -74,7 +73,7 @@ static const wchar_t *BF_Text[BF_LANG_COUNT][BF_TX_COUNT] = {
         L"Newest", L"Oldest", L"Star Order", L"Stars", L"Videos", L"Shorts",
         L"1 min preview", L"Open", L"Sound", L"Settings", L"Screen", L"Mouse click effect",
         L"Effect type", L"Effect speed", L"Effect time", L"Effect opacity", L"Theme", L"Sound", L"Language", L"All videos",
-        L"No items to show.", L"Terminal", L"Dark", L"Space", L"Book", L"Light Pixel", L"Deep Green", L"Go Board", L"Chess Board", L"White", L"Score",
+        L"No items to show.", L"Terminal", L"Dark", L"Space", L"Book", L"Light Pixel", L"Deep Green", L"Go Board", L"Chess Board", L"White",
         L"Fire", L"Water", L"Space", L"Pixel", L"Go Stone", L"Chess Piece", L"Notes",
         L"Korean", L"English", L"Japanese",
         L"Preview file is missing.",
@@ -86,7 +85,7 @@ static const wchar_t *BF_Text[BF_LANG_COUNT][BF_TX_COUNT] = {
         L"新しい順", L"古い順", L"星順", L"星", L"動画リスト", L"ショート",
         L"1分プレビュー", L"移動", L"音量", L"設定", L"画面", L"クリック効果",
         L"効果タイプ", L"効果速度", L"効果時間", L"効果不透明度", L"テーマ", L"音", L"言語", L"全動画",
-        L"表示する項目がありません。", L"ターミナル", L"ダーク", L"宇宙", L"本", L"ライトピクセル", L"ディープグリーン", L"碁盤", L"チェス盤", L"ホワイト", L"楽譜",
+        L"表示する項目がありません。", L"ターミナル", L"ダーク", L"宇宙", L"本", L"ライトピクセル", L"ディープグリーン", L"碁盤", L"チェス盤", L"ホワイト",
         L"火", L"水", L"宇宙", L"ピクセル", L"碁石", L"チェス駒", L"音符",
         L"韓国語", L"英語", L"日本語",
         L"プレビューファイルがありません。",
@@ -391,42 +390,6 @@ static void BFDrawSpaceBoard(HDC dc, const RECT *client)
     }
 }
 
-static void BFDrawScoreBoard(HDC dc, const RECT *client)
-{
-    const BFPalette *palette = BFP();
-    static const wchar_t *notes[8] = {L"♪", L"♫", L"♬", L"♩", L"♭", L"♯", L"♮", L"♬"};
-    int width = BFMaxInt(1, client->right - client->left);
-    int height = BFMaxInt(1, client->bottom - client->top);
-    int tick = BFCurrentAnimationTick();
-    int i;
-
-    BFFillRectColor(dc, client, palette->bg);
-    for (i = 0; i < 120; ++i) {
-        unsigned int seed = (unsigned int)(i * 1664525u + 1013904223u);
-        int x = client->left + (int)((seed >> 5) % (unsigned int)width);
-        int y = client->top + (int)((seed >> 17) % (unsigned int)height);
-        int phase = (tick + i * 5) % 72;
-        int size = 18 + (int)((seed >> 28) % 24);
-        RECT note;
-        HFONT font;
-        COLORREF color;
-
-        if (i % 5 == 0) {
-            y += phase / 6;
-        }
-        note.left = x - size;
-        note.top = y - size;
-        note.right = x + size;
-        note.bottom = y + size;
-        color = i % 7 == 0 ? palette->accent : (i % 3 == 0 ? palette->muted : palette->text);
-        font = CreateFontW(-size, 0, 0, 0, FW_BOLD, FALSE, FALSE, FALSE, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, CLEARTYPE_QUALITY, DEFAULT_PITCH | FF_DONTCARE, L"Segoe UI Symbol");
-        BFDrawTextBlock(dc, notes[(i + phase / 12) % 8], note, font != NULL ? font : GetStockObject(DEFAULT_GUI_FONT), color, DT_CENTER | DT_VCENTER | DT_SINGLELINE | DT_NOPREFIX);
-        if (font != NULL) {
-            DeleteObject(font);
-        }
-    }
-}
-
 void BFDrawGrid(HDC dc, const RECT *client)
 {
     const BFPalette *palette = BFP();
@@ -451,11 +414,6 @@ void BFDrawGrid(HDC dc, const RECT *client)
     if (BF_Settings.theme == BF_THEME_CHESS) {
         BFDrawChessBoard(dc, client);
         BFDrawLine(dc, client->left, scanY, client->right, scanY, palette->accent, 1);
-        return;
-    }
-    if (BF_Settings.theme == BF_THEME_SCORE) {
-        BFDrawScoreBoard(dc, client);
-        BFDrawLine(dc, client->left, scanY, client->right, scanY, palette->selected, 1);
         return;
     }
     BFFillRectColor(dc, client, palette->bg);

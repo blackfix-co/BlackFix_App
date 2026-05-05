@@ -47,7 +47,6 @@ typedef enum BFThemeId {
     BF_THEME_BADUK,
     BF_THEME_CHESS,
     BF_THEME_WHITE,
-    BF_THEME_SCORE,
     BF_THEME_COUNT
 } BFThemeId;
 
@@ -109,7 +108,6 @@ typedef enum BFTextKey {
     BF_TX_THEME_BADUK,
     BF_TX_THEME_CHESS,
     BF_TX_THEME_WHITE,
-    BF_TX_THEME_SCORE,
     BF_TX_EFFECT_FIRE,
     BF_TX_EFFECT_WATER,
     BF_TX_EFFECT_SPACE,
