@@ -54,7 +54,17 @@ static int BFCollectMemberItems(const BFMemberState *state, BFMediaRef *items)
         return count;
     }
 
-    if (state->selectedList < 0 || state->selectedList >= (int)state->listCount) {
+    if (state->selectedList < 0) {
+        for (i = 0; i < state->listCount && count < BF_MAX_VISIBLE_ITEMS; ++i) {
+            size_t j;
+            for (j = 0; j < state->lists[i].count && count < BF_MAX_VISIBLE_ITEMS; ++j) {
+                items[count++].item = &state->lists[i].items[j];
+            }
+        }
+        return count;
+    }
+
+    if (state->selectedList >= (int)state->listCount) {
         return 0;
     }
 
@@ -162,6 +172,8 @@ static void BFDrawMemberContent(HWND hwnd, HDC dc, const RECT *client, BFMemberS
     title.bottom = title.top + 34;
     if (state->showStarred) {
         BFDrawTextBlock(dc, BFT(BF_TX_STARRED), title, state->fonts.ui, palette->accent, DT_LEFT | DT_VCENTER | DT_SINGLELINE | DT_END_ELLIPSIS);
+    } else if (state->selectedList < 0) {
+        BFDrawTextBlock(dc, BFT(BF_TX_ALL_VIDEOS), title, state->fonts.ui, palette->accent, DT_LEFT | DT_VCENTER | DT_SINGLELINE | DT_END_ELLIPSIS);
     } else if (state->selectedList >= 0 && state->selectedList < (int)state->listCount) {
         BFDrawTextBlock(dc, state->lists[state->selectedList].name, title, state->fonts.ui, palette->accent, DT_LEFT | DT_VCENTER | DT_SINGLELINE | DT_END_ELLIPSIS);
     }
@@ -202,9 +214,18 @@ static void BFHandleMemberClick(HWND hwnd, BFMemberState *state, int x, int y)
 
     for (i = 0; i < state->sideHitCount; ++i) {
         if (BFPointInRect(&state->sideHits[i].rect, x, y)) {
-            state->showStarred = state->sideHits[i].starred;
-            if (!state->showStarred) {
-                state->selectedList = state->sideHits[i].listIndex;
+            if (state->sideHits[i].starred) {
+                state->showStarred = !state->showStarred;
+                if (!state->showStarred) {
+                    state->selectedList = -1;
+                }
+            } else {
+                if (!state->showStarred && state->selectedList == state->sideHits[i].listIndex) {
+                    state->selectedList = -1;
+                } else {
+                    state->showStarred = 0;
+                    state->selectedList = state->sideHits[i].listIndex;
+                }
             }
             state->scrollY = 0;
             InvalidateRect(hwnd, NULL, FALSE);
@@ -282,7 +303,7 @@ static LRESULT CALLBACK BFMemberWindowProc(HWND hwnd, UINT message, WPARAM wPara
         state->name = data->name;
         state->lists = data->lists;
         state->listCount = data->listCount;
-        state->selectedList = 0;
+        state->selectedList = -1;
         state->sort = BF_SORT_NEWEST;
         BFCreateFonts(&state->fonts, 22);
         SetWindowLongPtrW(hwnd, GWLP_USERDATA, (LONG_PTR)state);
@@ -290,7 +311,7 @@ static LRESULT CALLBACK BFMemberWindowProc(HWND hwnd, UINT message, WPARAM wPara
     }
 
     case WM_CREATE:
-        SetTimer(hwnd, BF_TIMER_ANIMATION, 80, NULL);
+        SetTimer(hwnd, BF_TIMER_ANIMATION, BF_EFFECT_TIMER_MS, NULL);
         return 0;
 
     case WM_ERASEBKGND:
@@ -325,8 +346,14 @@ static LRESULT CALLBACK BFMemberWindowProc(HWND hwnd, UINT message, WPARAM wPara
         }
         if (state != NULL && state->drag.active && (wParam & MK_LBUTTON) != 0) {
             int next = state->scrollY;
+            int oldX = state->drag.lastX;
+            int oldY = state->drag.lastY;
             if (BFUpdateDragScroll(&state->drag, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam), &next)) {
                 BFSetMemberScroll(hwnd, state, next);
+            }
+            if (state->drag.moved && (oldX != state->drag.lastX || oldY != state->drag.lastY)) {
+                BFAddDragEffect(&state->effects, oldX, oldY, state->drag.lastX, state->drag.lastY);
+                InvalidateRect(hwnd, NULL, FALSE);
             }
             return 0;
         }
@@ -357,9 +384,8 @@ static LRESULT CALLBACK BFMemberWindowProc(HWND hwnd, UINT message, WPARAM wPara
 
     case WM_TIMER:
         if (state != NULL && wParam == BF_TIMER_ANIMATION) {
-            if (BFStepClickEffects(&state->effects)) {
-                InvalidateRect(hwnd, NULL, FALSE);
-            }
+            BFStepClickEffects(&state->effects);
+            BFHandlePreviewTimer(hwnd, wParam);
             return 0;
         }
         BFHandlePreviewTimer(hwnd, wParam);

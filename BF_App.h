@@ -28,8 +28,8 @@
 #define BF_PATH_CAPACITY 1024
 #define BF_TIMER_PREVIEW 4001
 #define BF_TIMER_ANIMATION 4002
-#define BF_CLICK_EFFECT_MAX 48
-#define BF_CLICK_EFFECT_LIFE 18
+#define BF_EFFECT_TIMER_MS 33
+#define BF_CLICK_EFFECT_MAX 256
 
 typedef enum BFSortMode {
     BF_SORT_NEWEST,
@@ -44,8 +44,18 @@ typedef enum BFThemeId {
     BF_THEME_BOOK,
     BF_THEME_LIGHT,
     BF_THEME_DEEP,
+    BF_THEME_CUSTOM,
     BF_THEME_COUNT
 } BFThemeId;
+
+typedef enum BFEffectId {
+    BF_EFFECT_FIRE,
+    BF_EFFECT_WATER,
+    BF_EFFECT_SPACE,
+    BF_EFFECT_PIXEL,
+    BF_EFFECT_CUSTOM,
+    BF_EFFECT_COUNT
+} BFEffectId;
 
 typedef enum BFLanguage {
     BF_LANG_KO,
@@ -76,9 +86,14 @@ typedef enum BFTextKey {
     BF_TX_SETTINGS,
     BF_TX_SCREEN,
     BF_TX_CLICK_EFFECT,
+    BF_TX_EFFECT_TYPE,
+    BF_TX_EFFECT_SPEED,
+    BF_TX_EFFECT_DURATION,
+    BF_TX_EFFECT_OPACITY,
     BF_TX_THEME,
     BF_TX_SOUND,
     BF_TX_LANGUAGE,
+    BF_TX_ALL_VIDEOS,
     BF_TX_NO_ITEMS,
     BF_TX_THEME_TERMINAL,
     BF_TX_THEME_DARK,
@@ -86,6 +101,11 @@ typedef enum BFTextKey {
     BF_TX_THEME_BOOK,
     BF_TX_THEME_LIGHT,
     BF_TX_THEME_DEEP,
+    BF_TX_CUSTOM,
+    BF_TX_EFFECT_FIRE,
+    BF_TX_EFFECT_WATER,
+    BF_TX_EFFECT_SPACE,
+    BF_TX_EFFECT_PIXEL,
     BF_TX_LANG_KO,
     BF_TX_LANG_EN,
     BF_TX_LANG_JA,
@@ -114,6 +134,10 @@ typedef struct BFAppSettings {
     int language;
     int volume;
     int clickEffect;
+    int clickEffectStyle;
+    int clickEffectSpeed;
+    int clickEffectDuration;
+    int clickEffectOpacity;
 } BFAppSettings;
 
 typedef struct BFDragScroll {
@@ -122,13 +146,23 @@ typedef struct BFDragScroll {
     int startX;
     int startY;
     int startScroll;
+    int lastX;
+    int lastY;
 } BFDragScroll;
 
 typedef struct BFClickEffect {
     int active;
+    int kind;
     int x;
     int y;
+    int x2;
+    int y2;
+    int dx;
+    int dy;
     int age;
+    int life;
+    int size;
+    COLORREF color;
 } BFClickEffect;
 
 typedef struct BFClickEffects {
@@ -231,6 +265,7 @@ void BFBeginDragScroll(BFDragScroll *drag, int x, int y, int scrollY);
 int BFUpdateDragScroll(BFDragScroll *drag, int x, int y, int *scrollY);
 int BFEndDragScroll(BFDragScroll *drag);
 void BFAddClickEffect(BFClickEffects *effects, int x, int y);
+void BFAddDragEffect(BFClickEffects *effects, int x1, int y1, int x2, int y2);
 int BFStepClickEffects(BFClickEffects *effects);
 void BFDrawClickEffects(HDC dc, const BFClickEffects *effects);
 

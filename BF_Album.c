@@ -155,7 +155,7 @@ static LRESULT CALLBACK BFAlbumWindowProc(HWND hwnd, UINT message, WPARAM wParam
     }
 
     case WM_CREATE:
-        SetTimer(hwnd, BF_TIMER_ANIMATION, 80, NULL);
+        SetTimer(hwnd, BF_TIMER_ANIMATION, BF_EFFECT_TIMER_MS, NULL);
         return 0;
 
     case WM_ERASEBKGND:
@@ -190,8 +190,14 @@ static LRESULT CALLBACK BFAlbumWindowProc(HWND hwnd, UINT message, WPARAM wParam
         }
         if (state != NULL && state->drag.active && (wParam & MK_LBUTTON) != 0) {
             int next = state->scrollY;
+            int oldX = state->drag.lastX;
+            int oldY = state->drag.lastY;
             if (BFUpdateDragScroll(&state->drag, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam), &next)) {
                 BFSetAlbumScroll(hwnd, state, next);
+            }
+            if (state->drag.moved && (oldX != state->drag.lastX || oldY != state->drag.lastY)) {
+                BFAddDragEffect(&state->effects, oldX, oldY, state->drag.lastX, state->drag.lastY);
+                InvalidateRect(hwnd, NULL, FALSE);
             }
             return 0;
         }
@@ -222,9 +228,8 @@ static LRESULT CALLBACK BFAlbumWindowProc(HWND hwnd, UINT message, WPARAM wParam
 
     case WM_TIMER:
         if (state != NULL && wParam == BF_TIMER_ANIMATION) {
-            if (BFStepClickEffects(&state->effects)) {
-                InvalidateRect(hwnd, NULL, FALSE);
-            }
+            BFStepClickEffects(&state->effects);
+            BFHandlePreviewTimer(hwnd, wParam);
             return 0;
         }
         BFHandlePreviewTimer(hwnd, wParam);

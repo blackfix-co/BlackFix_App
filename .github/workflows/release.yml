@@ -38,7 +38,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: BlackFix
-          path: build/BlackFix.exe
+          path: |
+            build/BlackFix.exe
+            BF_Custom.ini
           if-no-files-found: error
 
       - name: Publish BlackFix App release
@@ -50,6 +52,7 @@ jobs:
           gh release create "BlackFix-App" `
             build/BlackFix.exe `
             version.txt `
+            BF_Custom.ini `
             --title "BlackFix App" `
             --notes "Automatic build from $env:GITHUB_SHA" `
             --latest
