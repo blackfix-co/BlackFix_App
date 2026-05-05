@@ -49,7 +49,9 @@ static const BFPalette BF_Palettes[BF_THEME_COUNT] = {
     {RGB(1, 3, 14), RGB(7, 12, 31), RGB(12, 21, 48), RGB(19, 31, 70), RGB(221, 241, 255), RGB(140, 177, 214), RGB(88, 221, 255), RGB(42, 76, 127), RGB(22, 67, 104), RGB(33, 88, 128)},
     {RGB(236, 228, 210), RGB(248, 241, 223), RGB(232, 218, 194), RGB(215, 199, 173), RGB(44, 35, 27), RGB(103, 82, 62), RGB(36, 128, 76), RGB(154, 129, 93), RGB(203, 228, 199), RGB(190, 214, 184)},
     {RGB(233, 242, 231), RGB(247, 255, 246), RGB(224, 241, 222), RGB(205, 225, 204), RGB(18, 61, 33), RGB(69, 113, 78), RGB(0, 132, 55), RGB(112, 170, 123), RGB(193, 234, 202), RGB(180, 223, 190)},
-    {RGB(1, 5, 2), RGB(3, 17, 7), RGB(5, 28, 11), RGB(7, 43, 14), RGB(183, 255, 195), RGB(92, 176, 105), RGB(76, 255, 94), RGB(24, 92, 35), RGB(16, 86, 28), RGB(22, 112, 41)}
+    {RGB(1, 5, 2), RGB(3, 17, 7), RGB(5, 28, 11), RGB(7, 43, 14), RGB(183, 255, 195), RGB(92, 176, 105), RGB(76, 255, 94), RGB(24, 92, 35), RGB(16, 86, 28), RGB(22, 112, 41)},
+    {RGB(199, 150, 78), RGB(218, 168, 91), RGB(188, 133, 63), RGB(75, 52, 31), RGB(30, 25, 20), RGB(78, 54, 33), RGB(20, 20, 17), RGB(99, 70, 43), RGB(235, 220, 184), RGB(32, 30, 26)},
+    {RGB(34, 35, 38), RGB(238, 238, 230), RGB(90, 97, 106), RGB(48, 52, 58), RGB(242, 242, 238), RGB(179, 184, 190), RGB(78, 207, 255), RGB(86, 92, 101), RGB(62, 80, 101), RGB(40, 56, 73)}
 };
 
 static const wchar_t *BF_Text[BF_LANG_COUNT][BF_TX_COUNT] = {
@@ -58,8 +60,8 @@ static const wchar_t *BF_Text[BF_LANG_COUNT][BF_TX_COUNT] = {
         L"최신순", L"오래된순", L"별표 순", L"별표", L"영상 목록", L"쇼츠 목록",
         L"1분 미리보기", L"이동", L"소리", L"설정", L"화면", L"마우스 클릭 이펙트",
         L"이펙트 종류", L"이펙트 속도", L"이펙트 시간", L"이펙트 불투명도", L"테마", L"소리", L"언어설정", L"전체 영상",
-        L"표시할 항목이 없습니다.", L"터미널", L"다크", L"우주", L"책", L"밝은 픽셀", L"딥 그린",
-        L"불", L"물", L"우주", L"픽셀",
+        L"표시할 항목이 없습니다.", L"터미널", L"다크", L"우주", L"책", L"밝은 픽셀", L"딥 그린", L"바둑판", L"체스판",
+        L"불", L"물", L"우주", L"픽셀", L"바둑돌", L"체스말",
         L"한국어", L"영어", L"일본어",
         L"미리보기 파일이 없습니다.",
         L"미리보기를 재생할 수 없습니다.",
@@ -70,8 +72,8 @@ static const wchar_t *BF_Text[BF_LANG_COUNT][BF_TX_COUNT] = {
         L"Newest", L"Oldest", L"Star Order", L"Stars", L"Videos", L"Shorts",
         L"1 min preview", L"Open", L"Sound", L"Settings", L"Screen", L"Mouse click effect",
         L"Effect type", L"Effect speed", L"Effect time", L"Effect opacity", L"Theme", L"Sound", L"Language", L"All videos",
-        L"No items to show.", L"Terminal", L"Dark", L"Space", L"Book", L"Light Pixel", L"Deep Green",
-        L"Fire", L"Water", L"Space", L"Pixel",
+        L"No items to show.", L"Terminal", L"Dark", L"Space", L"Book", L"Light Pixel", L"Deep Green", L"Go Board", L"Chess Board",
+        L"Fire", L"Water", L"Space", L"Pixel", L"Go Stone", L"Chess Piece",
         L"Korean", L"English", L"Japanese",
         L"Preview file is missing.",
         L"Could not play the preview.",
@@ -82,8 +84,8 @@ static const wchar_t *BF_Text[BF_LANG_COUNT][BF_TX_COUNT] = {
         L"新しい順", L"古い順", L"星順", L"星", L"動画リスト", L"ショート",
         L"1分プレビュー", L"移動", L"音量", L"設定", L"画面", L"クリック効果",
         L"効果タイプ", L"効果速度", L"効果時間", L"効果不透明度", L"テーマ", L"音", L"言語", L"全動画",
-        L"表示する項目がありません。", L"ターミナル", L"ダーク", L"宇宙", L"本", L"ライトピクセル", L"ディープグリーン",
-        L"火", L"水", L"宇宙", L"ピクセル",
+        L"表示する項目がありません。", L"ターミナル", L"ダーク", L"宇宙", L"本", L"ライトピクセル", L"ディープグリーン", L"碁盤", L"チェス盤",
+        L"火", L"水", L"宇宙", L"ピクセル", L"碁石", L"チェス駒",
         L"韓国語", L"英語", L"日本語",
         L"プレビューファイルがありません。",
         L"プレビューを再生できません。",
@@ -234,6 +236,11 @@ void BFDrawLine(HDC dc, int x1, int y1, int x2, int y2, COLORREF color, int widt
     DeleteObject(pen);
 }
 
+void BFRedrawNow(HWND hwnd)
+{
+    RedrawWindow(hwnd, NULL, NULL, RDW_INVALIDATE | RDW_UPDATENOW | RDW_NOERASE);
+}
+
 void BFDrawBox(HDC dc, RECT rect, COLORREF fill, COLORREF border, int width)
 {
     HBRUSH brush = CreateSolidBrush(fill);
@@ -267,6 +274,56 @@ static int BFCurrentAnimationTick(void)
     return (int)((now - BF_AnimStartMs) / BF_EFFECT_TIMER_MS);
 }
 
+static void BFDrawBadukBoard(HDC dc, const RECT *client)
+{
+    const BFPalette *palette = BFP();
+    int gap = 36;
+    int left = client->left + 18;
+    int top = client->top + 18;
+    int right = client->right - 18;
+    int bottom = client->bottom - 18;
+    int x;
+    int y;
+
+    BFFillRectColor(dc, client, palette->bg);
+    for (x = left; x <= right; x += gap) {
+        BFDrawLine(dc, x, top, x, bottom, palette->grid, 1);
+    }
+    for (y = top; y <= bottom; y += gap) {
+        BFDrawLine(dc, left, y, right, y, palette->grid, 1);
+    }
+    for (x = left + gap * 3; x <= right; x += gap * 6) {
+        for (y = top + gap * 3; y <= bottom; y += gap * 6) {
+            RECT dot;
+            dot.left = x - 3;
+            dot.top = y - 3;
+            dot.right = x + 4;
+            dot.bottom = y + 4;
+            BFFillRectColor(dc, &dot, palette->grid);
+        }
+    }
+}
+
+static void BFDrawChessBoard(HDC dc, const RECT *client)
+{
+    const BFPalette *palette = BFP();
+    int size = 48;
+    int x;
+    int y;
+    RECT square;
+
+    BFFillRectColor(dc, client, palette->bg);
+    for (y = client->top; y < client->bottom; y += size) {
+        for (x = client->left; x < client->right; x += size) {
+            square.left = x;
+            square.top = y;
+            square.right = BFMinInt(x + size, client->right);
+            square.bottom = BFMinInt(y + size, client->bottom);
+            BFFillRectColor(dc, &square, (((x - client->left) / size) + ((y - client->top) / size)) % 2 == 0 ? palette->panel : palette->panelAlt);
+        }
+    }
+}
+
 void BFDrawGrid(HDC dc, const RECT *client)
 {
     const BFPalette *palette = BFP();
@@ -279,6 +336,16 @@ void BFDrawGrid(HDC dc, const RECT *client)
     HGDIOBJ oldPen;
 
     BF_AnimTick = tick;
+    if (BF_Settings.theme == BF_THEME_BADUK) {
+        BFDrawBadukBoard(dc, client);
+        BFDrawLine(dc, client->left, scanY, client->right, scanY, palette->selected, 1);
+        return;
+    }
+    if (BF_Settings.theme == BF_THEME_CHESS) {
+        BFDrawChessBoard(dc, client);
+        BFDrawLine(dc, client->left, scanY, client->right, scanY, palette->accent, 1);
+        return;
+    }
     BFFillRectColor(dc, client, palette->bg);
     oldPen = SelectObject(dc, pen);
     for (x = client->left - offset; x < client->right; x += 16) {
@@ -471,9 +538,14 @@ static void BFEffectColors(COLORREF *primary, COLORREF *secondary)
         *secondary = RGB(88, 221, 255);
         break;
     case BF_EFFECT_PIXEL:
+    case BF_EFFECT_BADUK:
     default:
         *primary = RGB(42, 255, 121);
         *secondary = RGB(221, 255, 230);
+        break;
+    case BF_EFFECT_CHESS:
+        *primary = RGB(235, 238, 242);
+        *secondary = RGB(78, 207, 255);
         break;
     }
 }
@@ -485,6 +557,9 @@ static BFClickEffect *BFNextClickEffect(BFClickEffects *effects)
     effects->next = (effects->next + 1) % BF_CLICK_EFFECT_MAX;
     effect->active = 1;
     effect->life = BFClampInt(BF_Settings.clickEffectDuration, 10, 90);
+    if (effects->lastStepMs == 0) {
+        effects->lastStepMs = GetTickCount64();
+    }
     return effect;
 }
 
@@ -501,8 +576,33 @@ void BFAddClickEffect(BFClickEffects *effects, int x, int y)
         return;
     }
 
-    BFEffectColors(&primary, &secondary);
     style = BFClampInt(BF_Settings.clickEffectStyle, 0, BF_EFFECT_COUNT - 1);
+    BFEffectColors(&primary, &secondary);
+
+    if (style == BF_EFFECT_BADUK) {
+        effect = BFNextClickEffect(effects);
+        effect->kind = 2;
+        effect->x = x;
+        effect->y = y;
+        effect->size = 15 + BFNextEffectRand(6);
+        effect->extra = BFNextEffectRand(2);
+        effect->color = effect->extra == 0 ? RGB(12, 12, 12) : RGB(238, 232, 218);
+        effect->life = BFClampInt(BF_Settings.clickEffectDuration + 20, 24, 110);
+        return;
+    }
+
+    if (style == BF_EFFECT_CHESS) {
+        effect = BFNextClickEffect(effects);
+        effect->kind = 3;
+        effect->x = x;
+        effect->y = y;
+        effect->size = 30 + BFNextEffectRand(10);
+        effect->extra = BFNextEffectRand(12);
+        effect->color = effect->extra < 6 ? primary : RGB(24, 27, 31);
+        effect->life = BFClampInt(BF_Settings.clickEffectDuration + 16, 24, 106);
+        return;
+    }
+
     count = style == BF_EFFECT_PIXEL ? 8 : 10;
 
     for (i = 0; i < count; ++i) {
@@ -541,6 +641,8 @@ void BFAddDragEffect(BFClickEffects *effects, int x1, int y1, int x2, int y2)
     COLORREF primary;
     COLORREF secondary;
     int length;
+    int style;
+    int i;
 
     if (effects == NULL || !BF_Settings.clickEffect) {
         return;
@@ -554,7 +656,27 @@ void BFAddDragEffect(BFClickEffects *effects, int x1, int y1, int x2, int y2)
         return;
     }
 
+    style = BFClampInt(BF_Settings.clickEffectStyle, 0, BF_EFFECT_COUNT - 1);
     BFEffectColors(&primary, &secondary);
+
+    if (style == BF_EFFECT_CHESS) {
+        for (i = 0; i < BF_CLICK_EFFECT_MAX; ++i) {
+            if (effects->items[i].active && effects->items[i].kind == 4) {
+                effects->items[i].active = 0;
+            }
+        }
+        effect = BFNextClickEffect(effects);
+        effect->kind = 4;
+        effect->x = x1;
+        effect->y = y1;
+        effect->x2 = x2;
+        effect->y2 = y2;
+        effect->life = BFClampInt(BF_Settings.clickEffectDuration / 3 + 8, 10, 44);
+        effect->size = 2 + BFClampInt(BF_Settings.clickEffectSpeed, 1, 10) / 3;
+        effect->color = secondary;
+        return;
+    }
+
     effect = BFNextClickEffect(effects);
     effect->kind = 1;
     effect->x = x1;
@@ -577,26 +699,63 @@ int BFStepClickEffects(BFClickEffects *effects)
 {
     int i;
     int changed = 0;
+    int activeAfter = 0;
+    int steps;
+    ULONGLONG now;
+    ULONGLONG elapsed;
 
     if (effects == NULL) {
         return 0;
     }
+    if (!BF_Settings.clickEffect) {
+        BFClearClickEffects(effects);
+        return 0;
+    }
+
+    now = GetTickCount64();
+    if (effects->lastStepMs == 0) {
+        effects->lastStepMs = now;
+    }
+    elapsed = now - effects->lastStepMs;
+    steps = (int)(elapsed / BF_EFFECT_TIMER_MS);
+    if (steps < 1) {
+        return 0;
+    }
+    if (steps > 8) {
+        steps = 8;
+    }
+    effects->lastStepMs = now;
 
     for (i = 0; i < BF_CLICK_EFFECT_MAX; ++i) {
         if (effects->items[i].active) {
             changed = 1;
-            ++effects->items[i].age;
+            effects->items[i].age += steps;
             if (effects->items[i].kind == 0) {
-                effects->items[i].x += BFScaledVelocity(effects->items[i].dx);
-                effects->items[i].y += BFScaledVelocity(effects->items[i].dy);
+                effects->items[i].x += BFScaledVelocity(effects->items[i].dx) * steps;
+                effects->items[i].y += BFScaledVelocity(effects->items[i].dy) * steps;
             }
             if (effects->items[i].age > effects->items[i].life) {
                 effects->items[i].active = 0;
             }
+            if (effects->items[i].active) {
+                activeAfter = 1;
+            }
         }
+    }
+    if (!activeAfter) {
+        effects->lastStepMs = 0;
     }
 
     return changed;
+}
+
+void BFClearClickEffects(BFClickEffects *effects)
+{
+    if (effects == NULL) {
+        return;
+    }
+    ZeroMemory(effects->items, sizeof(effects->items));
+    effects->lastStepMs = GetTickCount64();
 }
 
 static void BFDrawEffectPixel(HDC dc, RECT rect, COLORREF color)
@@ -636,6 +795,76 @@ static void BFDrawEffectParticle(HDC dc, const BFClickEffect *effect, COLORREF c
     }
 }
 
+static void BFDrawBadukStone(HDC dc, const BFClickEffect *effect, COLORREF color)
+{
+    RECT stone;
+    RECT shine;
+    int size = BFMaxInt(10, effect->size);
+    HBRUSH brush = CreateSolidBrush(color);
+    HPEN pen = CreatePen(PS_SOLID, 2, effect->extra == 0 ? RGB(0, 0, 0) : RGB(75, 68, 55));
+    HGDIOBJ oldBrush = SelectObject(dc, brush);
+    HGDIOBJ oldPen = SelectObject(dc, pen);
+
+    stone.left = effect->x - size;
+    stone.top = effect->y - size;
+    stone.right = effect->x + size;
+    stone.bottom = effect->y + size;
+    Ellipse(dc, stone.left, stone.top, stone.right, stone.bottom);
+
+    SelectObject(dc, oldPen);
+    SelectObject(dc, oldBrush);
+    DeleteObject(pen);
+    DeleteObject(brush);
+
+    shine.left = effect->x - size / 3;
+    shine.top = effect->y - size / 3;
+    shine.right = shine.left + BFMaxInt(3, size / 4);
+    shine.bottom = shine.top + BFMaxInt(3, size / 4);
+    BFFillRectColor(dc, &shine, effect->extra == 0 ? RGB(64, 64, 62) : RGB(255, 252, 240));
+}
+
+static void BFDrawChessPiece(HDC dc, const BFClickEffect *effect, COLORREF color)
+{
+    static const wchar_t *pieces[12] = {L"♔", L"♕", L"♖", L"♗", L"♘", L"♙", L"♚", L"♛", L"♜", L"♝", L"♞", L"♟"};
+    RECT rect;
+    HFONT font;
+    HGDIOBJ oldFont;
+    int oldMode;
+    COLORREF oldColor;
+    int index = BFClampInt(effect->extra, 0, 11);
+    int size = BFMaxInt(24, effect->size);
+
+    rect.left = effect->x - size;
+    rect.top = effect->y - size;
+    rect.right = effect->x + size;
+    rect.bottom = effect->y + size;
+    font = CreateFontW(-size, 0, 0, 0, FW_BOLD, FALSE, FALSE, FALSE, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, CLEARTYPE_QUALITY, DEFAULT_PITCH | FF_DONTCARE, L"Segoe UI Symbol");
+    oldFont = SelectObject(dc, font != NULL ? font : GetStockObject(DEFAULT_GUI_FONT));
+    oldMode = SetBkMode(dc, TRANSPARENT);
+    oldColor = SetTextColor(dc, color);
+    DrawTextW(dc, pieces[index], -1, &rect, DT_CENTER | DT_VCENTER | DT_SINGLELINE | DT_NOPREFIX);
+    SetTextColor(dc, oldColor);
+    SetBkMode(dc, oldMode);
+    SelectObject(dc, oldFont);
+    if (font != NULL) {
+        DeleteObject(font);
+    }
+}
+
+static void BFDrawArrowEffect(HDC dc, const BFClickEffect *effect, COLORREF color)
+{
+    int dx = effect->x2 - effect->x;
+    int dy = effect->y2 - effect->y;
+    int backX = effect->x2 - (dx >= 0 ? 14 : -14);
+    int backY = effect->y2 - (dy >= 0 ? 14 : -14);
+    int sideX = dy >= 0 ? 7 : -7;
+    int sideY = dx >= 0 ? -7 : 7;
+
+    BFDrawLine(dc, effect->x, effect->y, effect->x2, effect->y2, color, effect->size);
+    BFDrawLine(dc, effect->x2, effect->y2, backX + sideX, backY + sideY, color, effect->size);
+    BFDrawLine(dc, effect->x2, effect->y2, backX - sideX, backY - sideY, color, effect->size);
+}
+
 void BFDrawClickEffects(HDC dc, const BFClickEffects *effects)
 {
     const BFPalette *palette = BFP();
@@ -659,7 +888,13 @@ void BFDrawClickEffects(HDC dc, const BFClickEffects *effects)
         opacity = BFClampInt(BF_Settings.clickEffectOpacity, 10, 100) * BFClampInt(fade, 0, 100) / 100;
         color = BFBlendEffectColor(palette->bg, effect->color, opacity);
 
-        if (effect->kind == 1) {
+        if (effect->kind == 4) {
+            BFDrawArrowEffect(dc, effect, color);
+        } else if (effect->kind == 3) {
+            BFDrawChessPiece(dc, effect, color);
+        } else if (effect->kind == 2) {
+            BFDrawBadukStone(dc, effect, color);
+        } else if (effect->kind == 1) {
             BFDrawLine(dc, effect->x, effect->y, effect->x2, effect->y2, color, effect->size);
         } else {
             BFDrawEffectParticle(dc, effect, color);

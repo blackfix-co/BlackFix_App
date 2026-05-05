@@ -8,15 +8,27 @@ set(BF_BUILD_VERSION "local" CACHE STRING "BlackFix build version")
 
 add_executable(BlackFix WIN32
     BFMain.c
-    BF_App.c
-    BF_BlackFix.c
-    BF_Album.c
-    BF_Member.c
-    BF_Settings.c
-    BF_Installer.c
-    BF_Update.c
-    BF_Content.c
-    BF_Resources.rc
+    Source/App/BF_App.c
+    Source/BlackFix/BF_BlackFix.c
+    Source/Album/BF_Album.c
+    Source/Member/BF_Member.c
+    Source/Settings/BF_Settings.c
+    Source/Installer/BF_Installer.c
+    Source/Update/BF_Update.c
+    Source/Content/BF_Content.c
+    Source/Resource/BF_Resources.rc
+)
+
+target_include_directories(BlackFix PRIVATE
+    Source/App
+    Source/BlackFix
+    Source/Album
+    Source/Member
+    Source/Settings
+    Source/Installer
+    Source/Update
+    Source/Content
+    Source/Resource
 )
 
 target_compile_definitions(BlackFix PRIVATE UNICODE _UNICODE WIN32_LEAN_AND_MEAN)

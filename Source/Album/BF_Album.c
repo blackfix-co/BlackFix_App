@@ -182,7 +182,7 @@ static LRESULT CALLBACK BFAlbumWindowProc(HWND hwnd, UINT message, WPARAM wParam
             BFAddClickEffect(&state->effects, x, y);
             BFBeginDragScroll(&state->drag, x, y, state->scrollY);
             SetCapture(hwnd);
-            InvalidateRect(hwnd, NULL, FALSE);
+            BFRedrawNow(hwnd);
         }
         return 0;
 
@@ -193,6 +193,7 @@ static LRESULT CALLBACK BFAlbumWindowProc(HWND hwnd, UINT message, WPARAM wParam
         }
         if (state != NULL && state->drag.active && (wParam & MK_LBUTTON) != 0) {
             int next = state->scrollY;
+            BFStepClickEffects(&state->effects);
             if (BFUpdateDragScroll(&state->drag, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam), &next)) {
                 BFSetAlbumScroll(hwnd, state, next);
             }
@@ -200,11 +201,15 @@ static LRESULT CALLBACK BFAlbumWindowProc(HWND hwnd, UINT message, WPARAM wParam
                 int dx = state->drag.lastX - state->drag.effectX;
                 int dy = state->drag.lastY - state->drag.effectY;
                 if (dx * dx + dy * dy >= 256) {
-                    BFAddDragEffect(&state->effects, state->drag.effectX, state->drag.effectY, state->drag.lastX, state->drag.lastY);
+                    if (BF_Settings.clickEffectStyle == BF_EFFECT_CHESS) {
+                        BFAddDragEffect(&state->effects, state->drag.startX, state->drag.startY, state->drag.lastX, state->drag.lastY);
+                    } else {
+                        BFAddDragEffect(&state->effects, state->drag.effectX, state->drag.effectY, state->drag.lastX, state->drag.lastY);
+                    }
                     state->drag.effectX = state->drag.lastX;
                     state->drag.effectY = state->drag.lastY;
                 }
-                InvalidateRect(hwnd, NULL, FALSE);
+                BFRedrawNow(hwnd);
             }
             return 0;
         }

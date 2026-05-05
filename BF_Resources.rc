@@ -1,3 +1,0 @@
-#include "BF_Resource.h"
-
-BF_ICON_APP ICON "BlackFix_icon.ico"

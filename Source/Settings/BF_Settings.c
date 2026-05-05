@@ -62,14 +62,18 @@ static const BFTextKey BF_THEME_TEXT[BF_THEME_COUNT] = {
     BF_TX_THEME_SPACE,
     BF_TX_THEME_BOOK,
     BF_TX_THEME_LIGHT,
-    BF_TX_THEME_DEEP
+    BF_TX_THEME_DEEP,
+    BF_TX_THEME_BADUK,
+    BF_TX_THEME_CHESS
 };
 
 static const BFTextKey BF_EFFECT_TEXT[BF_EFFECT_COUNT] = {
     BF_TX_EFFECT_FIRE,
     BF_TX_EFFECT_WATER,
     BF_TX_EFFECT_SPACE,
-    BF_TX_EFFECT_PIXEL
+    BF_TX_EFFECT_PIXEL,
+    BF_TX_EFFECT_BADUK,
+    BF_TX_EFFECT_CHESS
 };
 
 static const BFTextKey BF_LANGUAGE_TEXT[BF_LANG_COUNT] = {
@@ -458,6 +462,9 @@ static void BFHandleSettingsClick(HWND hwnd, BFSettingsState *state, int x, int 
         }
         if (BFPointInRect(&state->clickEffectBox, x, y)) {
             BF_Settings.clickEffect = !BF_Settings.clickEffect;
+            if (!BF_Settings.clickEffect) {
+                BFClearClickEffects(&state->effects);
+            }
             state->openDrop = BF_SETTINGS_DROP_NONE;
             BFSaveState();
             BFInvalidateAllWindows();
@@ -569,6 +576,7 @@ static LRESULT CALLBACK BFSettingsWindowProc(HWND hwnd, UINT message, WPARAM wPa
             BFHandleSettingsClick(hwnd, state, x, y);
             if (state->capture == BF_SETTINGS_CAPTURE_NONE) {
                 BFAddClickEffect(&state->effects, x, y);
+                BFRedrawNow(hwnd);
             }
         }
         return 0;

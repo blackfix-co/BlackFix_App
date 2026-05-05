@@ -6,7 +6,7 @@
 
 다운로드 받은 릴리스 exe 사용자는 앱 안에서 앨범, 노래, 영상, 굿즈를 추가하거나 수정할 수 없습니다. 콘텐츠는 빌드 시점에 실행 파일 안으로 들어갑니다.
 
-관리자가 소스에서 직접 추가하거나 수정할 콘텐츠는 [BF_Content.c](C:/Users/rasud/Desktop/BlackFix/BF_Content.c)에 모여 있습니다.
+관리자가 소스에서 직접 추가하거나 수정할 콘텐츠는 [BF_Content.c](C:/Users/rasud/Desktop/BlackFix/Source/Content/BF_Content.c)에 모여 있습니다.
 
 앨범은 `BF_ALBUMS` 배열에 추가합니다.
 
@@ -18,11 +18,11 @@
 
 창 코드는 파일별로 분리되어 있습니다.
 
-- [BF_BlackFix.c](C:/Users/rasud/Desktop/BlackFix/BF_BlackFix.c): BlackFix 메인 창
-- [BF_Album.c](C:/Users/rasud/Desktop/BlackFix/BF_Album.c): 앨범별 노래 창
-- [BF_Member.c](C:/Users/rasud/Desktop/BlackFix/BF_Member.c): 천/씨오 창
-- [BF_Settings.c](C:/Users/rasud/Desktop/BlackFix/BF_Settings.c): 설정 창
-- [BF_App.c](C:/Users/rasud/Desktop/BlackFix/BF_App.c): 공통 UI, 저장, 별표, 미리보기, 실행 관리
+- [BF_BlackFix.c](C:/Users/rasud/Desktop/BlackFix/Source/BlackFix/BF_BlackFix.c): BlackFix 메인 창
+- [BF_Album.c](C:/Users/rasud/Desktop/BlackFix/Source/Album/BF_Album.c): 앨범별 노래 창
+- [BF_Member.c](C:/Users/rasud/Desktop/BlackFix/Source/Member/BF_Member.c): 천/씨오 창
+- [BF_Settings.c](C:/Users/rasud/Desktop/BlackFix/Source/Settings/BF_Settings.c): 설정 창
+- [BF_App.c](C:/Users/rasud/Desktop/BlackFix/Source/App/BF_App.c): 공통 UI, 저장, 별표, 미리보기, 실행 관리
 
 `previewSource`는 1분 미리보기용 로컬 파일입니다. 실행 파일 기준 상대 경로 또는 절대 경로를 사용할 수 있습니다.
 

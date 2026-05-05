@@ -44,6 +44,8 @@ typedef enum BFThemeId {
     BF_THEME_BOOK,
     BF_THEME_LIGHT,
     BF_THEME_DEEP,
+    BF_THEME_BADUK,
+    BF_THEME_CHESS,
     BF_THEME_COUNT
 } BFThemeId;
 
@@ -52,6 +54,8 @@ typedef enum BFEffectId {
     BF_EFFECT_WATER,
     BF_EFFECT_SPACE,
     BF_EFFECT_PIXEL,
+    BF_EFFECT_BADUK,
+    BF_EFFECT_CHESS,
     BF_EFFECT_COUNT
 } BFEffectId;
 
@@ -99,10 +103,14 @@ typedef enum BFTextKey {
     BF_TX_THEME_BOOK,
     BF_TX_THEME_LIGHT,
     BF_TX_THEME_DEEP,
+    BF_TX_THEME_BADUK,
+    BF_TX_THEME_CHESS,
     BF_TX_EFFECT_FIRE,
     BF_TX_EFFECT_WATER,
     BF_TX_EFFECT_SPACE,
     BF_TX_EFFECT_PIXEL,
+    BF_TX_EFFECT_BADUK,
+    BF_TX_EFFECT_CHESS,
     BF_TX_LANG_KO,
     BF_TX_LANG_EN,
     BF_TX_LANG_JA,
@@ -161,12 +169,14 @@ typedef struct BFClickEffect {
     int age;
     int life;
     int size;
+    int extra;
     COLORREF color;
 } BFClickEffect;
 
 typedef struct BFClickEffects {
     BFClickEffect items[BF_CLICK_EFFECT_MAX];
     int next;
+    ULONGLONG lastStepMs;
 } BFClickEffects;
 
 typedef struct BFFonts {
@@ -258,6 +268,7 @@ void BFDrawTextBlock(HDC dc, const wchar_t *text, RECT rect, HFONT font, COLORRE
 void BFFillRectColor(HDC dc, const RECT *rect, COLORREF color);
 void BFDrawBox(HDC dc, RECT rect, COLORREF fill, COLORREF border, int width);
 void BFDrawLine(HDC dc, int x1, int y1, int x2, int y2, COLORREF color, int width);
+void BFRedrawNow(HWND hwnd);
 void BFDrawVolume(HDC dc, RECT bounds, HFONT font, RECT *trackOut);
 void BFSetVolumeFromTrack(RECT track, int x);
 void BFBeginDragScroll(BFDragScroll *drag, int x, int y, int scrollY);
@@ -266,6 +277,7 @@ int BFEndDragScroll(BFDragScroll *drag);
 void BFAddClickEffect(BFClickEffects *effects, int x, int y);
 void BFAddDragEffect(BFClickEffects *effects, int x1, int y1, int x2, int y2);
 int BFStepClickEffects(BFClickEffects *effects);
+void BFClearClickEffects(BFClickEffects *effects);
 void BFDrawClickEffects(HDC dc, const BFClickEffects *effects);
 
 int BFColumnCount(int width);
