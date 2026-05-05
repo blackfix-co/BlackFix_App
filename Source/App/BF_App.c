@@ -544,7 +544,7 @@ static void BFEffectColors(COLORREF *primary, COLORREF *secondary)
         *secondary = RGB(221, 255, 230);
         break;
     case BF_EFFECT_CHESS:
-        *primary = RGB(235, 238, 242);
+        *primary = RGB(188, 193, 199);
         *secondary = RGB(78, 207, 255);
         break;
     }
