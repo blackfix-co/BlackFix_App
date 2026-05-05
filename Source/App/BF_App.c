@@ -51,7 +51,9 @@ static const BFPalette BF_Palettes[BF_THEME_COUNT] = {
     {RGB(233, 242, 231), RGB(247, 255, 246), RGB(224, 241, 222), RGB(205, 225, 204), RGB(18, 61, 33), RGB(69, 113, 78), RGB(0, 132, 55), RGB(112, 170, 123), RGB(193, 234, 202), RGB(180, 223, 190)},
     {RGB(1, 5, 2), RGB(3, 17, 7), RGB(5, 28, 11), RGB(7, 43, 14), RGB(183, 255, 195), RGB(92, 176, 105), RGB(76, 255, 94), RGB(24, 92, 35), RGB(16, 86, 28), RGB(22, 112, 41)},
     {RGB(199, 150, 78), RGB(218, 168, 91), RGB(188, 133, 63), RGB(75, 52, 31), RGB(30, 25, 20), RGB(78, 54, 33), RGB(20, 20, 17), RGB(99, 70, 43), RGB(235, 220, 184), RGB(32, 30, 26)},
-    {RGB(34, 35, 38), RGB(238, 238, 230), RGB(90, 97, 106), RGB(48, 52, 58), RGB(24, 27, 31), RGB(70, 76, 84), RGB(27, 132, 184), RGB(86, 92, 101), RGB(196, 224, 242), RGB(170, 207, 230)}
+    {RGB(34, 35, 38), RGB(238, 238, 230), RGB(90, 97, 106), RGB(48, 52, 58), RGB(24, 27, 31), RGB(70, 76, 84), RGB(27, 132, 184), RGB(86, 92, 101), RGB(196, 224, 242), RGB(170, 207, 230)},
+    {RGB(247, 249, 250), RGB(255, 255, 255), RGB(235, 240, 244), RGB(212, 222, 230), RGB(25, 31, 36), RGB(91, 103, 113), RGB(15, 124, 90), RGB(169, 184, 194), RGB(210, 237, 227), RGB(224, 232, 238)},
+    {RGB(246, 242, 231), RGB(255, 253, 244), RGB(236, 229, 214), RGB(99, 109, 111), RGB(24, 25, 26), RGB(93, 91, 86), RGB(29, 107, 154), RGB(163, 151, 130), RGB(216, 235, 244), RGB(227, 219, 201)}
 };
 
 static const wchar_t *BF_Text[BF_LANG_COUNT][BF_TX_COUNT] = {
@@ -60,8 +62,8 @@ static const wchar_t *BF_Text[BF_LANG_COUNT][BF_TX_COUNT] = {
         L"최신순", L"오래된순", L"별표 순", L"별표", L"영상 목록", L"쇼츠 목록",
         L"1분 미리보기", L"이동", L"소리", L"설정", L"화면", L"마우스 클릭 이펙트",
         L"이펙트 종류", L"이펙트 속도", L"이펙트 시간", L"이펙트 불투명도", L"테마", L"소리", L"언어설정", L"전체 영상",
-        L"표시할 항목이 없습니다.", L"터미널", L"다크", L"우주", L"책", L"밝은 픽셀", L"딥 그린", L"바둑판", L"체스판",
-        L"불", L"물", L"우주", L"픽셀", L"바둑돌", L"체스말",
+        L"표시할 항목이 없습니다.", L"터미널", L"다크", L"우주", L"책", L"밝은 픽셀", L"딥 그린", L"바둑판", L"체스판", L"화이트", L"악보",
+        L"불", L"물", L"우주", L"픽셀", L"바둑돌", L"체스말", L"음표",
         L"한국어", L"영어", L"일본어",
         L"미리보기 파일이 없습니다.",
         L"미리보기를 재생할 수 없습니다.",
@@ -72,8 +74,8 @@ static const wchar_t *BF_Text[BF_LANG_COUNT][BF_TX_COUNT] = {
         L"Newest", L"Oldest", L"Star Order", L"Stars", L"Videos", L"Shorts",
         L"1 min preview", L"Open", L"Sound", L"Settings", L"Screen", L"Mouse click effect",
         L"Effect type", L"Effect speed", L"Effect time", L"Effect opacity", L"Theme", L"Sound", L"Language", L"All videos",
-        L"No items to show.", L"Terminal", L"Dark", L"Space", L"Book", L"Light Pixel", L"Deep Green", L"Go Board", L"Chess Board",
-        L"Fire", L"Water", L"Space", L"Pixel", L"Go Stone", L"Chess Piece",
+        L"No items to show.", L"Terminal", L"Dark", L"Space", L"Book", L"Light Pixel", L"Deep Green", L"Go Board", L"Chess Board", L"White", L"Score",
+        L"Fire", L"Water", L"Space", L"Pixel", L"Go Stone", L"Chess Piece", L"Notes",
         L"Korean", L"English", L"Japanese",
         L"Preview file is missing.",
         L"Could not play the preview.",
@@ -84,8 +86,8 @@ static const wchar_t *BF_Text[BF_LANG_COUNT][BF_TX_COUNT] = {
         L"新しい順", L"古い順", L"星順", L"星", L"動画リスト", L"ショート",
         L"1分プレビュー", L"移動", L"音量", L"設定", L"画面", L"クリック効果",
         L"効果タイプ", L"効果速度", L"効果時間", L"効果不透明度", L"テーマ", L"音", L"言語", L"全動画",
-        L"表示する項目がありません。", L"ターミナル", L"ダーク", L"宇宙", L"本", L"ライトピクセル", L"ディープグリーン", L"碁盤", L"チェス盤",
-        L"火", L"水", L"宇宙", L"ピクセル", L"碁石", L"チェス駒",
+        L"表示する項目がありません。", L"ターミナル", L"ダーク", L"宇宙", L"本", L"ライトピクセル", L"ディープグリーン", L"碁盤", L"チェス盤", L"ホワイト", L"楽譜",
+        L"火", L"水", L"宇宙", L"ピクセル", L"碁石", L"チェス駒", L"音符",
         L"韓国語", L"英語", L"日本語",
         L"プレビューファイルがありません。",
         L"プレビューを再生できません。",
@@ -324,6 +326,84 @@ static void BFDrawChessBoard(HDC dc, const RECT *client)
     }
 }
 
+static void BFDrawSpaceBoard(HDC dc, const RECT *client)
+{
+    const BFPalette *palette = BFP();
+    int width = BFMaxInt(1, client->right - client->left);
+    int height = BFMaxInt(1, client->bottom - client->top);
+    int tick = BFCurrentAnimationTick();
+    int i;
+
+    BFFillRectColor(dc, client, palette->bg);
+
+    for (i = 0; i < 150; ++i) {
+        unsigned int seed = (unsigned int)(i * 1103515245u + 0x4bf123u);
+        int x = client->left + (int)((seed >> 7) % (unsigned int)width);
+        int y = client->top + (int)((seed >> 18) % (unsigned int)height);
+        int phase = (tick + i * 3) % 48;
+        int bright = phase < 24 ? phase : 48 - phase;
+        int size = 1 + (int)((seed >> 28) % 3);
+        COLORREF color = bright > 16 ? palette->text : (i % 4 == 0 ? palette->accent : palette->muted);
+        RECT star;
+
+        star.left = x;
+        star.top = y;
+        star.right = x + size;
+        star.bottom = y + size;
+        BFFillRectColor(dc, &star, color);
+        if ((seed & 15u) == 0u) {
+            BFDrawLine(dc, x - 3, y, x + 4, y, color, 1);
+            BFDrawLine(dc, x, y - 3, x, y + 4, color, 1);
+        }
+    }
+
+    for (i = 0; i < 9; ++i) {
+        int y = client->top + 48 + i * 84 + (tick % 28);
+        int x1 = client->left + 18 + i * 46;
+        int x2 = x1 + 86;
+        if (y >= client->bottom) {
+            continue;
+        }
+        BFDrawLine(dc, x1, y, x2, y - 34, i % 2 == 0 ? palette->border : palette->selected, 1);
+    }
+}
+
+static void BFDrawScoreBoard(HDC dc, const RECT *client)
+{
+    const BFPalette *palette = BFP();
+    static const wchar_t *notes[8] = {L"♪", L"♫", L"♬", L"♩", L"♭", L"♯", L"♮", L"♬"};
+    int width = BFMaxInt(1, client->right - client->left);
+    int height = BFMaxInt(1, client->bottom - client->top);
+    int tick = BFCurrentAnimationTick();
+    int i;
+
+    BFFillRectColor(dc, client, palette->bg);
+    for (i = 0; i < 120; ++i) {
+        unsigned int seed = (unsigned int)(i * 1664525u + 1013904223u);
+        int x = client->left + (int)((seed >> 5) % (unsigned int)width);
+        int y = client->top + (int)((seed >> 17) % (unsigned int)height);
+        int phase = (tick + i * 5) % 72;
+        int size = 18 + (int)((seed >> 28) % 24);
+        RECT note;
+        HFONT font;
+        COLORREF color;
+
+        if (i % 5 == 0) {
+            y += phase / 6;
+        }
+        note.left = x - size;
+        note.top = y - size;
+        note.right = x + size;
+        note.bottom = y + size;
+        color = i % 7 == 0 ? palette->accent : (i % 3 == 0 ? palette->muted : palette->text);
+        font = CreateFontW(-size, 0, 0, 0, FW_BOLD, FALSE, FALSE, FALSE, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, CLEARTYPE_QUALITY, DEFAULT_PITCH | FF_DONTCARE, L"Segoe UI Symbol");
+        BFDrawTextBlock(dc, notes[(i + phase / 12) % 8], note, font != NULL ? font : GetStockObject(DEFAULT_GUI_FONT), color, DT_CENTER | DT_VCENTER | DT_SINGLELINE | DT_NOPREFIX);
+        if (font != NULL) {
+            DeleteObject(font);
+        }
+    }
+}
+
 void BFDrawGrid(HDC dc, const RECT *client)
 {
     const BFPalette *palette = BFP();
@@ -332,10 +412,14 @@ void BFDrawGrid(HDC dc, const RECT *client)
     int tick = BFCurrentAnimationTick();
     int offset = tick % 16;
     int scanY = client->top + (tick * 2) % BFMaxInt(1, client->bottom - client->top);
-    HPEN pen = CreatePen(PS_SOLID, 1, palette->grid);
+    HPEN pen;
     HGDIOBJ oldPen;
 
     BF_AnimTick = tick;
+    if (BF_Settings.theme == BF_THEME_SPACE) {
+        BFDrawSpaceBoard(dc, client);
+        return;
+    }
     if (BF_Settings.theme == BF_THEME_BADUK) {
         BFDrawBadukBoard(dc, client);
         BFDrawLine(dc, client->left, scanY, client->right, scanY, palette->selected, 1);
@@ -346,7 +430,13 @@ void BFDrawGrid(HDC dc, const RECT *client)
         BFDrawLine(dc, client->left, scanY, client->right, scanY, palette->accent, 1);
         return;
     }
+    if (BF_Settings.theme == BF_THEME_SCORE) {
+        BFDrawScoreBoard(dc, client);
+        BFDrawLine(dc, client->left, scanY, client->right, scanY, palette->selected, 1);
+        return;
+    }
     BFFillRectColor(dc, client, palette->bg);
+    pen = CreatePen(PS_SOLID, 1, palette->grid);
     oldPen = SelectObject(dc, pen);
     for (x = client->left - offset; x < client->right; x += 16) {
         MoveToEx(dc, x, client->top, NULL);
@@ -547,6 +637,10 @@ static void BFEffectColors(COLORREF *primary, COLORREF *secondary)
         *primary = RGB(188, 193, 199);
         *secondary = RGB(78, 207, 255);
         break;
+    case BF_EFFECT_NOTE:
+        *primary = RGB(22, 92, 145);
+        *secondary = RGB(24, 25, 26);
+        break;
     }
 }
 
@@ -600,6 +694,21 @@ void BFAddClickEffect(BFClickEffects *effects, int x, int y)
         effect->extra = BFNextEffectRand(12);
         effect->color = effect->extra < 6 ? primary : RGB(24, 27, 31);
         effect->life = BFClampInt(BF_Settings.clickEffectDuration + 16, 24, 106);
+        return;
+    }
+
+    if (style == BF_EFFECT_NOTE) {
+        for (i = 0; i < 8; ++i) {
+            effect = BFNextClickEffect(effects);
+            effect->kind = 6;
+            effect->x = x + BFNextEffectRand(23) - 11;
+            effect->y = y + BFNextEffectRand(17) - 8;
+            effect->size = 20 + BFNextEffectRand(12);
+            effect->extra = BFNextEffectRand(6);
+            effect->dx = BFNextEffectRand(7) - 3;
+            effect->dy = -2 - BFNextEffectRand(5);
+            effect->color = (i % 3 == 0) ? secondary : primary;
+        }
         return;
     }
 
@@ -677,6 +786,37 @@ void BFAddDragEffect(BFClickEffects *effects, int x1, int y1, int x2, int y2)
         return;
     }
 
+    if (style == BF_EFFECT_SPACE) {
+        int dx = x2 - x1;
+        int dy = y2 - y1;
+        for (i = 0; i < BF_CLICK_EFFECT_MAX; ++i) {
+            if (effects->items[i].active && effects->items[i].kind == 5) {
+                effects->items[i].active = 0;
+            }
+        }
+        effect = BFNextClickEffect(effects);
+        effect->kind = 5;
+        effect->x = x1;
+        effect->y = y1;
+        effect->x2 = x2;
+        effect->y2 = y2;
+        effect->life = BFClampInt(BF_Settings.clickEffectDuration / 4 + 6, 8, 34);
+        effect->size = 1 + BFClampInt(BF_Settings.clickEffectSpeed, 1, 10) / 4;
+        effect->color = BFNextEffectRand(2) == 0 ? primary : secondary;
+        for (i = 0; i < 5; ++i) {
+            BFClickEffect *spark = BFNextClickEffect(effects);
+            spark->kind = 0;
+            spark->x = x2 + BFNextEffectRand(25) - 12;
+            spark->y = y2 + BFNextEffectRand(21) - 10;
+            spark->dx = (dx >= 0 ? -3 : 3) + BFNextEffectRand(5) - 2;
+            spark->dy = (dy >= 0 ? -2 : 2) + BFNextEffectRand(5) - 2;
+            spark->size = 2 + BFNextEffectRand(3);
+            spark->life = BFClampInt(BF_Settings.clickEffectDuration / 4 + 4, 6, 28);
+            spark->color = i % 2 == 0 ? secondary : primary;
+        }
+        return;
+    }
+
     effect = BFNextClickEffect(effects);
     effect->kind = 1;
     effect->x = x1;
@@ -730,7 +870,7 @@ int BFStepClickEffects(BFClickEffects *effects)
         if (effects->items[i].active) {
             changed = 1;
             effects->items[i].age += steps;
-            if (effects->items[i].kind == 0) {
+            if (effects->items[i].kind == 0 || effects->items[i].kind == 6) {
                 effects->items[i].x += BFScaledVelocity(effects->items[i].dx) * steps;
                 effects->items[i].y += BFScaledVelocity(effects->items[i].dy) * steps;
             }
@@ -851,6 +991,68 @@ static void BFDrawChessPiece(HDC dc, const BFClickEffect *effect, COLORREF color
     }
 }
 
+static void BFDrawNotePiece(HDC dc, const BFClickEffect *effect, COLORREF color)
+{
+    static const wchar_t *notes[6] = {L"♪", L"♫", L"♬", L"♩", L"♭", L"♯"};
+    RECT rect;
+    HFONT font;
+    HGDIOBJ oldFont;
+    int oldMode;
+    COLORREF oldColor;
+    int size = BFMaxInt(18, effect->size);
+
+    rect.left = effect->x - size;
+    rect.top = effect->y - size;
+    rect.right = effect->x + size;
+    rect.bottom = effect->y + size;
+    font = CreateFontW(-size, 0, 0, 0, FW_BOLD, FALSE, FALSE, FALSE, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, CLEARTYPE_QUALITY, DEFAULT_PITCH | FF_DONTCARE, L"Segoe UI Symbol");
+    oldFont = SelectObject(dc, font != NULL ? font : GetStockObject(DEFAULT_GUI_FONT));
+    oldMode = SetBkMode(dc, TRANSPARENT);
+    oldColor = SetTextColor(dc, color);
+    DrawTextW(dc, notes[BFClampInt(effect->extra, 0, 5)], -1, &rect, DT_CENTER | DT_VCENTER | DT_SINGLELINE | DT_NOPREFIX);
+    SetTextColor(dc, oldColor);
+    SetBkMode(dc, oldMode);
+    SelectObject(dc, oldFont);
+    if (font != NULL) {
+        DeleteObject(font);
+    }
+}
+
+static void BFDrawMeteorEffect(HDC dc, const BFClickEffect *effect, COLORREF color)
+{
+    RECT star;
+    HFONT font;
+    HGDIOBJ oldFont;
+    int oldMode;
+    COLORREF oldColor;
+    int size = BFMaxInt(2, effect->size);
+    int starSize = 17 + size * 3;
+    int dx = effect->x2 - effect->x;
+    int dy = effect->y2 - effect->y;
+    int tailX = dx >= 0 ? -16 : 16;
+    int tailY = dy >= 0 ? -12 : 12;
+
+    BFDrawLine(dc, effect->x, effect->y, effect->x2, effect->y2, color, size + 1);
+    BFDrawLine(dc, effect->x + tailY / 3, effect->y - tailX / 3, effect->x2 + tailX, effect->y2 + tailY, color, 1);
+    BFDrawLine(dc, effect->x - tailY / 3, effect->y + tailX / 3, effect->x2 + tailX * 2, effect->y2 + tailY * 2, color, 1);
+
+    star.left = effect->x2 - starSize / 2;
+    star.top = effect->y2 - starSize / 2;
+    star.right = effect->x2 + starSize / 2;
+    star.bottom = effect->y2 + starSize / 2;
+    font = CreateFontW(-starSize, 0, 0, 0, FW_BOLD, FALSE, FALSE, FALSE, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, CLEARTYPE_QUALITY, DEFAULT_PITCH | FF_DONTCARE, L"Segoe UI Symbol");
+    oldFont = SelectObject(dc, font != NULL ? font : GetStockObject(DEFAULT_GUI_FONT));
+    oldMode = SetBkMode(dc, TRANSPARENT);
+    oldColor = SetTextColor(dc, color);
+    DrawTextW(dc, L"★", -1, &star, DT_CENTER | DT_VCENTER | DT_SINGLELINE | DT_NOPREFIX);
+    SetTextColor(dc, oldColor);
+    SetBkMode(dc, oldMode);
+    SelectObject(dc, oldFont);
+    if (font != NULL) {
+        DeleteObject(font);
+    }
+}
+
 static void BFDrawArrowEffect(HDC dc, const BFClickEffect *effect, COLORREF color)
 {
     int dx = effect->x2 - effect->x;
@@ -892,7 +1094,11 @@ void BFDrawClickEffects(HDC dc, const BFClickEffects *effects)
             color = BFBlendEffectColor(palette->bg, effect->color, opacity);
         }
 
-        if (effect->kind == 4) {
+        if (effect->kind == 6) {
+            BFDrawNotePiece(dc, effect, color);
+        } else if (effect->kind == 5) {
+            BFDrawMeteorEffect(dc, effect, color);
+        } else if (effect->kind == 4) {
             BFDrawArrowEffect(dc, effect, color);
         } else if (effect->kind == 3) {
             BFDrawChessPiece(dc, effect, color);
