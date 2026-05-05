@@ -5,7 +5,6 @@
 #include <windowsx.h>
 #include <stdio.h>
 #include "BF_Settings.h"
-#include "BF_Custom.h"
 
 typedef enum BFSettingsDrop {
     BF_SETTINGS_DROP_NONE,
@@ -62,16 +61,14 @@ static const BFTextKey BF_THEME_TEXT[BF_THEME_COUNT] = {
     BF_TX_THEME_SPACE,
     BF_TX_THEME_BOOK,
     BF_TX_THEME_LIGHT,
-    BF_TX_THEME_DEEP,
-    BF_TX_CUSTOM
+    BF_TX_THEME_DEEP
 };
 
 static const BFTextKey BF_EFFECT_TEXT[BF_EFFECT_COUNT] = {
     BF_TX_EFFECT_FIRE,
     BF_TX_EFFECT_WATER,
     BF_TX_EFFECT_SPACE,
-    BF_TX_EFFECT_PIXEL,
-    BF_TX_CUSTOM
+    BF_TX_EFFECT_PIXEL
 };
 
 static const BFTextKey BF_LANGUAGE_TEXT[BF_LANG_COUNT] = {
@@ -79,22 +76,6 @@ static const BFTextKey BF_LANGUAGE_TEXT[BF_LANG_COUNT] = {
     BF_TX_LANG_EN,
     BF_TX_LANG_JA
 };
-
-static const wchar_t *BFThemeLabel(int theme)
-{
-    if (theme == BF_THEME_CUSTOM) {
-        return BFCustomThemeName();
-    }
-    return BFT(BF_THEME_TEXT[BFClampInt(theme, 0, BF_THEME_COUNT - 1)]);
-}
-
-static const wchar_t *BFEffectLabel(int effect)
-{
-    if (effect == BF_EFFECT_CUSTOM) {
-        return BFCustomEffectName();
-    }
-    return BFT(BF_EFFECT_TEXT[BFClampInt(effect, 0, BF_EFFECT_COUNT - 1)]);
-}
 
 static BFSettingsState *BFGetSettingsState(void)
 {
@@ -150,31 +131,6 @@ static void BFDrawDropList(HDC dc, RECT box, HFONT font, int count, const BFText
         row.left += 10;
         row.right -= 10;
         BFDrawTextBlock(dc, BFT(keys[i]), row, font, i == selected ? palette->accent : palette->text, DT_LEFT | DT_VCENTER | DT_SINGLELINE | DT_END_ELLIPSIS);
-    }
-}
-
-static void BFDrawNamedDropList(HDC dc, RECT box, HFONT font, int count, int selected, const wchar_t *(*label)(int))
-{
-    const BFPalette *palette = BFP();
-    RECT list = box;
-    RECT row;
-    int i;
-
-    list.top = box.bottom + 2;
-    list.bottom = list.top + count * 30;
-    BFDrawBox(dc, list, palette->panel, palette->border, 1);
-
-    for (i = 0; i < count; ++i) {
-        row.left = list.left + 1;
-        row.top = list.top + i * 30;
-        row.right = list.right - 1;
-        row.bottom = row.top + 30;
-        if (i == selected) {
-            BFFillRectColor(dc, &row, palette->selected);
-        }
-        row.left += 10;
-        row.right -= 10;
-        BFDrawTextBlock(dc, label(i), row, font, i == selected ? palette->accent : palette->text, DT_LEFT | DT_VCENTER | DT_SINGLELINE | DT_END_ELLIPSIS);
     }
 }
 
@@ -319,8 +275,39 @@ static void BFDrawValueSlider(HDC dc, RECT content, RECT track, const wchar_t *l
 static int BFValueFromTrack(RECT track, int x, int minimum, int maximum)
 {
     int width = BFMaxInt(1, track.right - track.left);
-    int value = minimum + (x - track.left) * (maximum - minimum) / width;
+    int value = minimum + ((x - track.left) * (maximum - minimum) + width / 2) / width;
     return BFClampInt(value, minimum, maximum);
+}
+
+static int BFPointInSlider(RECT track, int x, int y)
+{
+    RECT hit = track;
+    InflateRect(&hit, 12, 14);
+    return BFPointInRect(&hit, x, y);
+}
+
+static void BFSetEffectSliderValue(HWND hwnd, BFSettingsState *state, int x)
+{
+    int changed = 0;
+
+    if (state->capture == BF_SETTINGS_CAPTURE_SPEED) {
+        int value = BFValueFromTrack(state->speedTrack, x, 1, 10);
+        changed = BF_Settings.clickEffectSpeed != value;
+        BF_Settings.clickEffectSpeed = value;
+    } else if (state->capture == BF_SETTINGS_CAPTURE_DURATION) {
+        int value = BFValueFromTrack(state->durationTrack, x, 10, 90);
+        changed = BF_Settings.clickEffectDuration != value;
+        BF_Settings.clickEffectDuration = value;
+    } else if (state->capture == BF_SETTINGS_CAPTURE_OPACITY) {
+        int value = BFValueFromTrack(state->opacityTrack, x, 10, 100);
+        changed = BF_Settings.clickEffectOpacity != value;
+        BF_Settings.clickEffectOpacity = value;
+    }
+
+    if (changed) {
+        BFSaveState();
+        InvalidateRect(hwnd, NULL, FALSE);
+    }
 }
 
 static void BFDrawSettings(HWND hwnd, HDC dc, const RECT *client, BFSettingsState *state)
@@ -359,10 +346,10 @@ static void BFDrawSettings(HWND hwnd, HDC dc, const RECT *client, BFSettingsStat
         BFDrawVolume(dc, volumeBounds, state->fonts.small, &state->volumeTrack);
     } else if (state->panel == BF_SETTINGS_PANEL_SCREEN) {
         BFDrawPanelLabel(dc, state->contentRect, 112, BFT(BF_TX_THEME), state->fonts.ui);
-        BFDrawControlBox(dc, state->themeBox, BFThemeLabel(BFClampInt(BF_Settings.theme, 0, BF_THEME_COUNT - 1)), state->fonts.small, state->openDrop == BF_SETTINGS_DROP_THEME);
+        BFDrawControlBox(dc, state->themeBox, BFT(BF_THEME_TEXT[BFClampInt(BF_Settings.theme, 0, BF_THEME_COUNT - 1)]), state->fonts.small, state->openDrop == BF_SETTINGS_DROP_THEME);
 
         BFDrawPanelLabel(dc, state->contentRect, 192, BFT(BF_TX_EFFECT_TYPE), state->fonts.ui);
-        BFDrawControlBox(dc, state->effectBox, BFEffectLabel(BFClampInt(BF_Settings.clickEffectStyle, 0, BF_EFFECT_COUNT - 1)), state->fonts.small, state->openDrop == BF_SETTINGS_DROP_EFFECT);
+        BFDrawControlBox(dc, state->effectBox, BFT(BF_EFFECT_TEXT[BFClampInt(BF_Settings.clickEffectStyle, 0, BF_EFFECT_COUNT - 1)]), state->fonts.small, state->openDrop == BF_SETTINGS_DROP_EFFECT);
 
         BFDrawPanelLabel(dc, state->contentRect, 274, BFT(BF_TX_CLICK_EFFECT), state->fonts.ui);
         BFDrawToggle(dc, state->clickEffectBox, BFT(BF_TX_CLICK_EFFECT), state->fonts.small, BF_Settings.clickEffect);
@@ -372,9 +359,9 @@ static void BFDrawSettings(HWND hwnd, HDC dc, const RECT *client, BFSettingsStat
         BFDrawValueSlider(dc, state->contentRect, state->opacityTrack, BFT(BF_TX_EFFECT_OPACITY), BF_Settings.clickEffectOpacity, 10, 100, state->fonts.small);
 
         if (state->openDrop == BF_SETTINGS_DROP_THEME) {
-            BFDrawNamedDropList(dc, state->themeBox, state->fonts.small, BF_THEME_COUNT, BFClampInt(BF_Settings.theme, 0, BF_THEME_COUNT - 1), BFThemeLabel);
+            BFDrawDropList(dc, state->themeBox, state->fonts.small, BF_THEME_COUNT, BF_THEME_TEXT, BFClampInt(BF_Settings.theme, 0, BF_THEME_COUNT - 1));
         } else if (state->openDrop == BF_SETTINGS_DROP_EFFECT) {
-            BFDrawNamedDropList(dc, state->effectBox, state->fonts.small, BF_EFFECT_COUNT, BFClampInt(BF_Settings.clickEffectStyle, 0, BF_EFFECT_COUNT - 1), BFEffectLabel);
+            BFDrawDropList(dc, state->effectBox, state->fonts.small, BF_EFFECT_COUNT, BF_EFFECT_TEXT, BFClampInt(BF_Settings.clickEffectStyle, 0, BF_EFFECT_COUNT - 1));
         }
     } else {
         BFDrawPanelLabel(dc, state->contentRect, 112, BFT(BF_TX_LANGUAGE), state->fonts.ui);
@@ -475,30 +462,24 @@ static void BFHandleSettingsClick(HWND hwnd, BFSettingsState *state, int x, int 
             BFInvalidateAllWindows();
             return;
         }
-        if (BFPointInRect(&state->speedTrack, x, y)) {
+        if (BFPointInSlider(state->speedTrack, x, y)) {
             state->capture = BF_SETTINGS_CAPTURE_SPEED;
             state->openDrop = BF_SETTINGS_DROP_NONE;
-            BF_Settings.clickEffectSpeed = BFValueFromTrack(state->speedTrack, x, 1, 10);
-            BFSaveState();
-            BFInvalidateAllWindows();
+            BFSetEffectSliderValue(hwnd, state, x);
             SetCapture(hwnd);
             return;
         }
-        if (BFPointInRect(&state->durationTrack, x, y)) {
+        if (BFPointInSlider(state->durationTrack, x, y)) {
             state->capture = BF_SETTINGS_CAPTURE_DURATION;
             state->openDrop = BF_SETTINGS_DROP_NONE;
-            BF_Settings.clickEffectDuration = BFValueFromTrack(state->durationTrack, x, 10, 90);
-            BFSaveState();
-            BFInvalidateAllWindows();
+            BFSetEffectSliderValue(hwnd, state, x);
             SetCapture(hwnd);
             return;
         }
-        if (BFPointInRect(&state->opacityTrack, x, y)) {
+        if (BFPointInSlider(state->opacityTrack, x, y)) {
             state->capture = BF_SETTINGS_CAPTURE_OPACITY;
             state->openDrop = BF_SETTINGS_DROP_NONE;
-            BF_Settings.clickEffectOpacity = BFValueFromTrack(state->opacityTrack, x, 10, 100);
-            BFSaveState();
-            BFInvalidateAllWindows();
+            BFSetEffectSliderValue(hwnd, state, x);
             SetCapture(hwnd);
             return;
         }
@@ -582,8 +563,10 @@ static LRESULT CALLBACK BFSettingsWindowProc(HWND hwnd, UINT message, WPARAM wPa
         if (state != NULL) {
             int x = GET_X_LPARAM(lParam);
             int y = GET_Y_LPARAM(lParam);
-            BFAddClickEffect(&state->effects, x, y);
             BFHandleSettingsClick(hwnd, state, x, y);
+            if (state->capture == BF_SETTINGS_CAPTURE_NONE) {
+                BFAddClickEffect(&state->effects, x, y);
+            }
         }
         return 0;
 
@@ -593,16 +576,7 @@ static LRESULT CALLBACK BFSettingsWindowProc(HWND hwnd, UINT message, WPARAM wPa
             return 0;
         }
         if (state != NULL && state->capture != BF_SETTINGS_CAPTURE_NONE && (wParam & MK_LBUTTON) != 0) {
-            int x = GET_X_LPARAM(lParam);
-            if (state->capture == BF_SETTINGS_CAPTURE_SPEED) {
-                BF_Settings.clickEffectSpeed = BFValueFromTrack(state->speedTrack, x, 1, 10);
-            } else if (state->capture == BF_SETTINGS_CAPTURE_DURATION) {
-                BF_Settings.clickEffectDuration = BFValueFromTrack(state->durationTrack, x, 10, 90);
-            } else if (state->capture == BF_SETTINGS_CAPTURE_OPACITY) {
-                BF_Settings.clickEffectOpacity = BFValueFromTrack(state->opacityTrack, x, 10, 100);
-            }
-            BFSaveState();
-            BFInvalidateAllWindows();
+            BFSetEffectSliderValue(hwnd, state, GET_X_LPARAM(lParam));
             return 0;
         }
         break;

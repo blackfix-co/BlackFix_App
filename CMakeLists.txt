@@ -14,7 +14,6 @@ add_executable(BlackFix WIN32
     BF_Member.c
     BF_Settings.c
     BF_Update.c
-    BF_Custom.c
     BF_Content.c
 )
 
@@ -30,4 +29,4 @@ if(MINGW)
     target_link_options(BlackFix PRIVATE -municode -static -static-libgcc)
 endif()
 
-target_link_libraries(BlackFix PRIVATE user32 gdi32 shell32 comctl32 winmm urlmon msimg32)
+target_link_libraries(BlackFix PRIVATE user32 gdi32 shell32 comctl32 winmm urlmon)

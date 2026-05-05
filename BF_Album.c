@@ -170,13 +170,13 @@ static LRESULT CALLBACK BFAlbumWindowProc(HWND hwnd, UINT message, WPARAM wParam
         if (state != NULL) {
             int x = GET_X_LPARAM(lParam);
             int y = GET_Y_LPARAM(lParam);
-            BFAddClickEffect(&state->effects, x, y);
             if (!IsRectEmpty(&state->volumeTrack) && BFPointInRect(&state->volumeTrack, x, y)) {
                 BFSetVolumeFromTrack(state->volumeTrack, x);
                 BF_VolumeCaptureWindow = hwnd;
                 SetCapture(hwnd);
                 return 0;
             }
+            BFAddClickEffect(&state->effects, x, y);
             BFBeginDragScroll(&state->drag, x, y, state->scrollY);
             SetCapture(hwnd);
             InvalidateRect(hwnd, NULL, FALSE);
@@ -190,13 +190,17 @@ static LRESULT CALLBACK BFAlbumWindowProc(HWND hwnd, UINT message, WPARAM wParam
         }
         if (state != NULL && state->drag.active && (wParam & MK_LBUTTON) != 0) {
             int next = state->scrollY;
-            int oldX = state->drag.lastX;
-            int oldY = state->drag.lastY;
             if (BFUpdateDragScroll(&state->drag, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam), &next)) {
                 BFSetAlbumScroll(hwnd, state, next);
             }
-            if (state->drag.moved && (oldX != state->drag.lastX || oldY != state->drag.lastY)) {
-                BFAddDragEffect(&state->effects, oldX, oldY, state->drag.lastX, state->drag.lastY);
+            if (state->drag.moved) {
+                int dx = state->drag.lastX - state->drag.effectX;
+                int dy = state->drag.lastY - state->drag.effectY;
+                if (dx * dx + dy * dy >= 256) {
+                    BFAddDragEffect(&state->effects, state->drag.effectX, state->drag.effectY, state->drag.lastX, state->drag.lastY);
+                    state->drag.effectX = state->drag.lastX;
+                    state->drag.effectY = state->drag.lastY;
+                }
                 InvalidateRect(hwnd, NULL, FALSE);
             }
             return 0;

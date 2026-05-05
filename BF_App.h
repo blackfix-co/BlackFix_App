@@ -29,7 +29,7 @@
 #define BF_TIMER_PREVIEW 4001
 #define BF_TIMER_ANIMATION 4002
 #define BF_EFFECT_TIMER_MS 33
-#define BF_CLICK_EFFECT_MAX 256
+#define BF_CLICK_EFFECT_MAX 96
 
 typedef enum BFSortMode {
     BF_SORT_NEWEST,
@@ -44,7 +44,6 @@ typedef enum BFThemeId {
     BF_THEME_BOOK,
     BF_THEME_LIGHT,
     BF_THEME_DEEP,
-    BF_THEME_CUSTOM,
     BF_THEME_COUNT
 } BFThemeId;
 
@@ -53,7 +52,6 @@ typedef enum BFEffectId {
     BF_EFFECT_WATER,
     BF_EFFECT_SPACE,
     BF_EFFECT_PIXEL,
-    BF_EFFECT_CUSTOM,
     BF_EFFECT_COUNT
 } BFEffectId;
 
@@ -101,7 +99,6 @@ typedef enum BFTextKey {
     BF_TX_THEME_BOOK,
     BF_TX_THEME_LIGHT,
     BF_TX_THEME_DEEP,
-    BF_TX_CUSTOM,
     BF_TX_EFFECT_FIRE,
     BF_TX_EFFECT_WATER,
     BF_TX_EFFECT_SPACE,
@@ -148,6 +145,8 @@ typedef struct BFDragScroll {
     int startScroll;
     int lastX;
     int lastY;
+    int effectX;
+    int effectY;
 } BFDragScroll;
 
 typedef struct BFClickEffect {

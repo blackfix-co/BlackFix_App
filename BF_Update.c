@@ -13,8 +13,8 @@
 #define BF_BUILD_VERSION L"local"
 #endif
 
-#define BF_UPDATE_VERSION_URL L"https://github.com/blackfix-co/BlackFix_App/releases/latest/download/version.txt"
-#define BF_UPDATE_EXE_URL L"https://github.com/blackfix-co/BlackFix_App/releases/latest/download/BlackFix.exe"
+#define BF_UPDATE_VERSION_URL L"https://github.com/blackfix-co/BlackFix_App/releases/download/BlackFix-App/version.txt"
+#define BF_UPDATE_EXE_URL L"https://github.com/blackfix-co/BlackFix_App/releases/download/BlackFix-App/BlackFix.exe"
 
 static void BFTrimLine(wchar_t *text)
 {

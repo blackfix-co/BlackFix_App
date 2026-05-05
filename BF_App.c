@@ -14,7 +14,6 @@
 #include "BF_Member.h"
 #include "BF_Settings.h"
 #include "BF_Update.h"
-#include "BF_Custom.h"
 
 typedef struct BFStarEntry {
     wchar_t id[96];
@@ -42,7 +41,7 @@ static wchar_t BF_PreviewId[96];
 
 static void BFApplyPreviewVolume(void);
 
-static const BFPalette BF_Palettes[BF_THEME_CUSTOM] = {
+static const BFPalette BF_Palettes[BF_THEME_COUNT] = {
     {RGB(2, 6, 4), RGB(6, 14, 9), RGB(9, 25, 14), RGB(10, 35, 16), RGB(198, 255, 207), RGB(118, 184, 126), RGB(42, 255, 121), RGB(18, 68, 30), RGB(13, 69, 31), RGB(21, 93, 42)},
     {RGB(9, 10, 12), RGB(17, 19, 22), RGB(25, 28, 32), RGB(31, 34, 39), RGB(230, 235, 231), RGB(145, 154, 148), RGB(118, 255, 153), RGB(58, 67, 61), RGB(33, 58, 43), RGB(45, 70, 54)},
     {RGB(1, 3, 14), RGB(7, 12, 31), RGB(12, 21, 48), RGB(19, 31, 70), RGB(221, 241, 255), RGB(140, 177, 214), RGB(88, 221, 255), RGB(42, 76, 127), RGB(22, 67, 104), RGB(33, 88, 128)},
@@ -57,7 +56,7 @@ static const wchar_t *BF_Text[BF_LANG_COUNT][BF_TX_COUNT] = {
         L"최신순", L"오래된순", L"별표 순", L"별표", L"영상 목록", L"쇼츠 목록",
         L"1분 미리보기", L"이동", L"소리", L"설정", L"화면", L"마우스 클릭 이펙트",
         L"이펙트 종류", L"이펙트 속도", L"이펙트 시간", L"이펙트 불투명도", L"테마", L"소리", L"언어설정", L"전체 영상",
-        L"표시할 항목이 없습니다.", L"터미널", L"다크", L"우주", L"책", L"밝은 픽셀", L"딥 그린", L"커스텀",
+        L"표시할 항목이 없습니다.", L"터미널", L"다크", L"우주", L"책", L"밝은 픽셀", L"딥 그린",
         L"불", L"물", L"우주", L"픽셀",
         L"한국어", L"영어", L"일본어",
         L"미리보기 파일이 없습니다. media 폴더에 파일을 넣거나 BF_Content.c의 previewSource를 수정하세요.",
@@ -69,7 +68,7 @@ static const wchar_t *BF_Text[BF_LANG_COUNT][BF_TX_COUNT] = {
         L"Newest", L"Oldest", L"Star Order", L"Stars", L"Videos", L"Shorts",
         L"1 min preview", L"Open", L"Sound", L"Settings", L"Screen", L"Mouse click effect",
         L"Effect type", L"Effect speed", L"Effect time", L"Effect opacity", L"Theme", L"Sound", L"Language", L"All videos",
-        L"No items to show.", L"Terminal", L"Dark", L"Space", L"Book", L"Light Pixel", L"Deep Green", L"Custom",
+        L"No items to show.", L"Terminal", L"Dark", L"Space", L"Book", L"Light Pixel", L"Deep Green",
         L"Fire", L"Water", L"Space", L"Pixel",
         L"Korean", L"English", L"Japanese",
         L"Preview file is missing. Put the file in the media folder or edit previewSource in BF_Content.c.",
@@ -81,7 +80,7 @@ static const wchar_t *BF_Text[BF_LANG_COUNT][BF_TX_COUNT] = {
         L"新しい順", L"古い順", L"星順", L"星", L"動画リスト", L"ショート",
         L"1分プレビュー", L"移動", L"音量", L"設定", L"画面", L"クリック効果",
         L"効果タイプ", L"効果速度", L"効果時間", L"効果不透明度", L"テーマ", L"音", L"言語", L"全動画",
-        L"表示する項目がありません。", L"ターミナル", L"ダーク", L"宇宙", L"本", L"ライトピクセル", L"ディープグリーン", L"カスタム",
+        L"表示する項目がありません。", L"ターミナル", L"ダーク", L"宇宙", L"本", L"ライトピクセル", L"ディープグリーン",
         L"火", L"水", L"宇宙", L"ピクセル",
         L"韓国語", L"英語", L"日本語",
         L"プレビューファイルがありません。mediaフォルダーに置くか、BF_Content.cのpreviewSourceを修正してください。",
@@ -99,9 +98,6 @@ const wchar_t *BFT(BFTextKey key)
 const BFPalette *BFP(void)
 {
     int theme = BFClampInt(BF_Settings.theme, 0, BF_THEME_COUNT - 1);
-    if (theme == BF_THEME_CUSTOM) {
-        return BFCustomPalette();
-    }
     return &BF_Palettes[theme];
 }
 
@@ -270,9 +266,7 @@ void BFDrawGrid(HDC dc, const RECT *client)
     HPEN pen = CreatePen(PS_SOLID, 1, palette->grid);
     HGDIOBJ oldPen;
 
-    if (!BFDrawCustomBackground(dc, client)) {
-        BFFillRectColor(dc, client, palette->bg);
-    }
+    BFFillRectColor(dc, client, palette->bg);
     oldPen = SelectObject(dc, pen);
     for (x = client->left - offset; x < client->right; x += 16) {
         MoveToEx(dc, x, client->top, NULL);
@@ -379,6 +373,8 @@ void BFBeginDragScroll(BFDragScroll *drag, int x, int y, int scrollY)
     drag->startScroll = scrollY;
     drag->lastX = x;
     drag->lastY = y;
+    drag->effectX = x;
+    drag->effectY = y;
 }
 
 int BFUpdateDragScroll(BFDragScroll *drag, int x, int y, int *scrollY)
@@ -462,12 +458,9 @@ static void BFEffectColors(COLORREF *primary, COLORREF *secondary)
         *secondary = RGB(88, 221, 255);
         break;
     case BF_EFFECT_PIXEL:
+    default:
         *primary = RGB(42, 255, 121);
         *secondary = RGB(221, 255, 230);
-        break;
-    default:
-        *primary = BFCustomEffectPrimary();
-        *secondary = BFCustomEffectSecondary();
         break;
     }
 }
@@ -497,7 +490,7 @@ void BFAddClickEffect(BFClickEffects *effects, int x, int y)
 
     BFEffectColors(&primary, &secondary);
     style = BFClampInt(BF_Settings.clickEffectStyle, 0, BF_EFFECT_COUNT - 1);
-    count = style == BF_EFFECT_PIXEL ? 10 : 14;
+    count = style == BF_EFFECT_PIXEL ? 8 : 10;
 
     for (i = 0; i < count; ++i) {
         int angle = i % 8;
@@ -505,7 +498,7 @@ void BFAddClickEffect(BFClickEffects *effects, int x, int y)
         effect->kind = 0;
         effect->x = x + BFNextEffectRand(9) - 4;
         effect->y = y + BFNextEffectRand(9) - 4;
-        effect->size = 3 + BFNextEffectRand(style == BF_EFFECT_PIXEL ? 5 : 7);
+        effect->size = 2 + BFNextEffectRand(style == BF_EFFECT_PIXEL ? 4 : 5);
         effect->color = (i % 3 == 0) ? secondary : primary;
 
         if (style == BF_EFFECT_FIRE) {
@@ -544,7 +537,7 @@ void BFAddDragEffect(BFClickEffects *effects, int x1, int y1, int x2, int y2)
     if (length < 0) {
         length = -length;
     }
-    if (length < 8 && y1 == y2) {
+    if (length < 10 && (y2 - y1) * (y2 - y1) < 100) {
         return;
     }
 
@@ -559,8 +552,8 @@ void BFAddDragEffect(BFClickEffects *effects, int x1, int y1, int x2, int y2)
         effect->x -= 10;
         effect->x2 += 10;
     }
-    effect->life = BFMaxInt(8, BFClampInt(BF_Settings.clickEffectDuration, 10, 90) / 2);
-    effect->size = 2 + BFClampInt(BF_Settings.clickEffectSpeed, 1, 10) / 3;
+    effect->life = BFClampInt(BF_Settings.clickEffectDuration / 8 + 3, 4, 14);
+    effect->size = 1 + BFClampInt(BF_Settings.clickEffectSpeed, 1, 10) / 4;
     effect->color = primary;
     if (BF_Settings.clickEffectStyle == BF_EFFECT_SPACE && BFNextEffectRand(2) == 0) {
         effect->color = secondary;
@@ -600,7 +593,7 @@ static void BFDrawEffectPixel(HDC dc, RECT rect, COLORREF color)
     DeleteObject(brush);
 }
 
-static void BFDrawEffectParticle(HDC dc, const BFClickEffect *effect, COLORREF color, int opacity)
+static void BFDrawEffectParticle(HDC dc, const BFClickEffect *effect, COLORREF color)
 {
     int style = BFClampInt(BF_Settings.clickEffectStyle, 0, BF_EFFECT_COUNT - 1);
     RECT rect;
@@ -610,10 +603,6 @@ static void BFDrawEffectParticle(HDC dc, const BFClickEffect *effect, COLORREF c
     rect.top = effect->y - size;
     rect.right = effect->x + size;
     rect.bottom = effect->y + size;
-
-    if (style == BF_EFFECT_CUSTOM && BFDrawCustomEffectImage(dc, effect->x, effect->y, size * 3, opacity)) {
-        return;
-    }
 
     if (style == BF_EFFECT_PIXEL) {
         rect.left = effect->x - size;
@@ -660,7 +649,7 @@ void BFDrawClickEffects(HDC dc, const BFClickEffects *effects)
         if (effect->kind == 1) {
             BFDrawLine(dc, effect->x, effect->y, effect->x2, effect->y2, color, effect->size);
         } else {
-            BFDrawEffectParticle(dc, effect, color, opacity);
+            BFDrawEffectParticle(dc, effect, color);
         }
     }
 }
@@ -1375,8 +1364,6 @@ int BFRunApplication(HINSTANCE instance, int showCommand)
     controls.dwSize = sizeof(controls);
     controls.dwICC = ICC_BAR_CLASSES | ICC_STANDARD_CLASSES;
     InitCommonControlsEx(&controls);
-    BFEnsureCustomConfig();
-    BFLoadCustomConfig();
     BFLoadState();
     BFCheckForUpdate();
 

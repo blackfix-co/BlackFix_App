@@ -19,16 +19,13 @@
 - [BF_Member.c](C:/Users/rasud/Desktop/BlackFix/BF_Member.c): 천/씨오 창
 - [BF_Settings.c](C:/Users/rasud/Desktop/BlackFix/BF_Settings.c): 설정 창
 - [BF_App.c](C:/Users/rasud/Desktop/BlackFix/BF_App.c): 공통 UI, 저장, 별표, 미리보기, 실행 관리
-- [BF_Custom.c](C:/Users/rasud/Desktop/BlackFix/BF_Custom.c): 커스텀 테마, 배경 이미지, 커스텀 이펙트 파일 로딩
 
 `previewSource`는 1분 미리보기용 로컬 파일입니다. 실행 파일 기준 상대 경로 또는 절대 경로를 사용할 수 있습니다.
 
 별표, 테마, 소리, 언어, 클릭 이펙트 설정은 `%APPDATA%\BlackFix\BFState.txt`에 저장됩니다.
 
-커스텀 테마와 커스텀 이펙트는 `%APPDATA%\BlackFix\BF_Custom.ini`에서 수정합니다. `backgroundImage`와 `effectImage`는 `.bmp` 파일 경로를 넣으면 적용됩니다. 상대 경로는 `BF_Custom.ini`가 있는 폴더 기준입니다.
-
-GitHub에 `main` 브랜치로 올리면 `.github/workflows/release.yml`이 Windows exe를 빌드하고 `BlackFix App` 릴리스에 `BlackFix.exe`, `version.txt`, `BF_Custom.ini`를 갱신합니다.
+GitHub에 `main` 브랜치로 올리면 `.github/workflows/release.yml`이 Windows exe를 빌드하고 `BlackFix App` 릴리스에 `BlackFix.exe`와 `version.txt`를 갱신합니다.
 
 사용자는 GitHub Release의 `BlackFix.exe`만 받으면 됩니다. GitHub 공개 저장소 특성상 소스 압축 다운로드 자체를 없앨 수는 없지만, 릴리스 자산은 exe 중심으로 구성했습니다.
 
-앱은 시작할 때 릴리스의 `version.txt`를 확인하고 새 버전이면 `BlackFix.exe`를 내려받아 자동으로 교체한 뒤 다시 실행합니다. `BF_Custom.ini`가 없으면 앱이 릴리스에서 자동으로 내려받고, 다운로드에 실패하면 기본 파일을 생성합니다.
+앱은 시작할 때 릴리스의 `version.txt`를 확인하고 새 버전이면 `BlackFix.exe`를 내려받아 자동으로 교체한 뒤 다시 실행합니다.
