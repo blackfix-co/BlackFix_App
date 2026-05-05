@@ -326,6 +326,16 @@ static void BFDrawChessBoard(HDC dc, const RECT *client)
     }
 }
 
+static unsigned int BFSpaceHash(unsigned int value)
+{
+    value ^= value >> 16;
+    value *= 0x7feb352du;
+    value ^= value >> 15;
+    value *= 0x846ca68bu;
+    value ^= value >> 16;
+    return value;
+}
+
 static void BFDrawSpaceBoard(HDC dc, const RECT *client)
 {
     const BFPalette *palette = BFP();
@@ -336,35 +346,48 @@ static void BFDrawSpaceBoard(HDC dc, const RECT *client)
 
     BFFillRectColor(dc, client, palette->bg);
 
-    for (i = 0; i < 150; ++i) {
-        unsigned int seed = (unsigned int)(i * 1103515245u + 0x4bf123u);
-        int x = client->left + (int)((seed >> 7) % (unsigned int)width);
-        int y = client->top + (int)((seed >> 18) % (unsigned int)height);
-        int phase = (tick + i * 3) % 48;
-        int bright = phase < 24 ? phase : 48 - phase;
-        int size = 1 + (int)((seed >> 28) % 3);
-        COLORREF color = bright > 16 ? palette->text : (i % 4 == 0 ? palette->accent : palette->muted);
+    for (i = 0; i < 260; ++i) {
+        unsigned int seed = BFSpaceHash((unsigned int)i + 0x4bf123u);
+        int x = client->left + (int)(seed % (unsigned int)width);
+        int y = client->top + (int)(BFSpaceHash(seed + 17u) % (unsigned int)height);
+        int phase = (tick + (int)(seed % 96u)) % 96;
+        int bright = phase < 48 ? phase : 96 - phase;
+        int size = 1;
+        COLORREF color = RGB(72, 96, 130);
         RECT star;
 
-        star.left = x;
-        star.top = y;
-        star.right = x + size;
-        star.bottom = y + size;
+        if ((seed & 31u) == 0u) {
+            size = 3;
+            color = bright > 20 ? RGB(221, 242, 255) : RGB(135, 176, 214);
+        } else if ((seed & 7u) == 0u) {
+            size = 2;
+            color = bright > 18 ? palette->text : palette->muted;
+        } else if ((seed & 3u) == 0u) {
+            color = RGB(128, 170, 212);
+        }
+
+        star.left = x - size / 2;
+        star.top = y - size / 2;
+        star.right = star.left + size;
+        star.bottom = star.top + size;
         BFFillRectColor(dc, &star, color);
-        if ((seed & 15u) == 0u) {
-            BFDrawLine(dc, x - 3, y, x + 4, y, color, 1);
-            BFDrawLine(dc, x, y - 3, x, y + 4, color, 1);
+        if ((seed & 63u) == 0u) {
+            BFDrawLine(dc, x - 4, y, x + 5, y, color, 1);
+            BFDrawLine(dc, x, y - 4, x, y + 5, color, 1);
         }
     }
 
-    for (i = 0; i < 9; ++i) {
-        int y = client->top + 48 + i * 84 + (tick % 28);
-        int x1 = client->left + 18 + i * 46;
-        int x2 = x1 + 86;
-        if (y >= client->bottom) {
-            continue;
-        }
-        BFDrawLine(dc, x1, y, x2, y - 34, i % 2 == 0 ? palette->border : palette->selected, 1);
+    for (i = 0; i < 24; ++i) {
+        unsigned int seed = BFSpaceHash((unsigned int)i + 0x91a3u);
+        int x = client->left + (int)(seed % (unsigned int)width);
+        int y = client->top + (int)(BFSpaceHash(seed + 29u) % (unsigned int)height);
+        RECT glow;
+
+        glow.left = x - 1;
+        glow.top = y - 1;
+        glow.right = x + 2;
+        glow.bottom = y + 2;
+        BFFillRectColor(dc, &glow, (seed & 1u) == 0u ? palette->accent : RGB(188, 218, 255));
     }
 }
 
