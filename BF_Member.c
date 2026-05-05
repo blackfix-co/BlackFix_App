@@ -5,6 +5,7 @@
 #include <windowsx.h>
 #include <stdio.h>
 #include "BF_Member.h"
+#include "BF_Resource.h"
 
 typedef struct BFMemberOpenData {
     int personId;
@@ -257,6 +258,8 @@ int BFRegisterMemberWindow(HINSTANCE instance)
     cls.lpfnWndProc = BFMemberWindowProc;
     cls.hInstance = instance;
     cls.hCursor = LoadCursorW(NULL, IDC_ARROW);
+    cls.hIcon = LoadIconW(instance, MAKEINTRESOURCEW(BF_ICON_APP));
+    cls.hIconSm = LoadIconW(instance, MAKEINTRESOURCEW(BF_ICON_APP));
     cls.lpszClassName = BF_MEMBER_CLASS;
     return RegisterClassExW(&cls) != 0;
 }

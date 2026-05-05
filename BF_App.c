@@ -14,6 +14,7 @@
 #include "BF_Member.h"
 #include "BF_Settings.h"
 #include "BF_Update.h"
+#include "BF_Installer.h"
 
 typedef struct BFStarEntry {
     wchar_t id[96];
@@ -1364,6 +1365,15 @@ int BFRunApplication(HINSTANCE instance, int showCommand)
     controls.dwSize = sizeof(controls);
     controls.dwICC = ICC_BAR_CLASSES | ICC_STANDARD_CLASSES;
     InitCommonControlsEx(&controls);
+
+    if (!BFRunInstallerIfNeeded(instance)) {
+        if (BF_SingletonMutex != NULL) {
+            CloseHandle(BF_SingletonMutex);
+            BF_SingletonMutex = NULL;
+        }
+        return 0;
+    }
+
     BFLoadState();
     BFCheckForUpdate();
 

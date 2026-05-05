@@ -5,6 +5,7 @@
 #include <windowsx.h>
 #include <stdio.h>
 #include "BF_Album.h"
+#include "BF_Resource.h"
 
 typedef struct BFAlbumState {
     size_t albumIndex;
@@ -111,6 +112,8 @@ int BFRegisterAlbumWindow(HINSTANCE instance)
     cls.lpfnWndProc = BFAlbumWindowProc;
     cls.hInstance = instance;
     cls.hCursor = LoadCursorW(NULL, IDC_ARROW);
+    cls.hIcon = LoadIconW(instance, MAKEINTRESOURCEW(BF_ICON_APP));
+    cls.hIconSm = LoadIconW(instance, MAKEINTRESOURCEW(BF_ICON_APP));
     cls.lpszClassName = BF_ALBUM_CLASS;
     return RegisterClassExW(&cls) != 0;
 }

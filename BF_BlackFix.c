@@ -7,6 +7,7 @@
 #include "BF_BlackFix.h"
 #include "BF_Album.h"
 #include "BF_Member.h"
+#include "BF_Resource.h"
 
 typedef enum BFBlackFixView {
     BF_BLACKFIX_ALBUMS,
@@ -292,6 +293,8 @@ int BFRegisterBlackFixWindow(HINSTANCE instance)
     cls.lpfnWndProc = BFBlackFixWindowProc;
     cls.hInstance = instance;
     cls.hCursor = LoadCursorW(NULL, IDC_ARROW);
+    cls.hIcon = LoadIconW(instance, MAKEINTRESOURCEW(BF_ICON_APP));
+    cls.hIconSm = LoadIconW(instance, MAKEINTRESOURCEW(BF_ICON_APP));
     cls.lpszClassName = BF_MAIN_CLASS;
     return RegisterClassExW(&cls) != 0;
 }

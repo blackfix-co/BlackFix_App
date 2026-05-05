@@ -5,6 +5,7 @@
 #include <windowsx.h>
 #include <stdio.h>
 #include "BF_Settings.h"
+#include "BF_Resource.h"
 
 typedef enum BFSettingsDrop {
     BF_SETTINGS_DROP_NONE,
@@ -503,6 +504,8 @@ int BFRegisterSettingsWindow(HINSTANCE instance)
     cls.lpfnWndProc = BFSettingsWindowProc;
     cls.hInstance = instance;
     cls.hCursor = LoadCursorW(NULL, IDC_ARROW);
+    cls.hIcon = LoadIconW(instance, MAKEINTRESOURCEW(BF_ICON_APP));
+    cls.hIconSm = LoadIconW(instance, MAKEINTRESOURCEW(BF_ICON_APP));
     cls.lpszClassName = BF_SETTINGS_CLASS;
     return RegisterClassExW(&cls) != 0;
 }
