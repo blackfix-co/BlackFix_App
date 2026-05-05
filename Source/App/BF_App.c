@@ -51,7 +51,7 @@ static const BFPalette BF_Palettes[BF_THEME_COUNT] = {
     {RGB(233, 242, 231), RGB(247, 255, 246), RGB(224, 241, 222), RGB(205, 225, 204), RGB(18, 61, 33), RGB(69, 113, 78), RGB(0, 132, 55), RGB(112, 170, 123), RGB(193, 234, 202), RGB(180, 223, 190)},
     {RGB(1, 5, 2), RGB(3, 17, 7), RGB(5, 28, 11), RGB(7, 43, 14), RGB(183, 255, 195), RGB(92, 176, 105), RGB(76, 255, 94), RGB(24, 92, 35), RGB(16, 86, 28), RGB(22, 112, 41)},
     {RGB(199, 150, 78), RGB(218, 168, 91), RGB(188, 133, 63), RGB(75, 52, 31), RGB(30, 25, 20), RGB(78, 54, 33), RGB(20, 20, 17), RGB(99, 70, 43), RGB(235, 220, 184), RGB(32, 30, 26)},
-    {RGB(34, 35, 38), RGB(238, 238, 230), RGB(90, 97, 106), RGB(48, 52, 58), RGB(242, 242, 238), RGB(179, 184, 190), RGB(78, 207, 255), RGB(86, 92, 101), RGB(62, 80, 101), RGB(40, 56, 73)}
+    {RGB(34, 35, 38), RGB(238, 238, 230), RGB(90, 97, 106), RGB(48, 52, 58), RGB(24, 27, 31), RGB(70, 76, 84), RGB(27, 132, 184), RGB(86, 92, 101), RGB(196, 224, 242), RGB(170, 207, 230)}
 };
 
 static const wchar_t *BF_Text[BF_LANG_COUNT][BF_TX_COUNT] = {
@@ -584,7 +584,7 @@ void BFAddClickEffect(BFClickEffects *effects, int x, int y)
         effect->kind = 2;
         effect->x = x;
         effect->y = y;
-        effect->size = 15 + BFNextEffectRand(6);
+        effect->size = 11 + BFNextEffectRand(5);
         effect->extra = BFNextEffectRand(2);
         effect->color = effect->extra == 0 ? RGB(12, 12, 12) : RGB(238, 232, 218);
         effect->life = BFClampInt(BF_Settings.clickEffectDuration + 20, 24, 110);
@@ -799,7 +799,7 @@ static void BFDrawBadukStone(HDC dc, const BFClickEffect *effect, COLORREF color
 {
     RECT stone;
     RECT shine;
-    int size = BFMaxInt(10, effect->size);
+    int size = BFMaxInt(8, effect->size);
     HBRUSH brush = CreateSolidBrush(color);
     HPEN pen = CreatePen(PS_SOLID, 2, effect->extra == 0 ? RGB(0, 0, 0) : RGB(75, 68, 55));
     HGDIOBJ oldBrush = SelectObject(dc, brush);
@@ -885,8 +885,12 @@ void BFDrawClickEffects(HDC dc, const BFClickEffects *effects)
         }
 
         fade = effect->life > 0 ? (effect->life - effect->age) * 100 / effect->life : 0;
-        opacity = BFClampInt(BF_Settings.clickEffectOpacity, 10, 100) * BFClampInt(fade, 0, 100) / 100;
-        color = BFBlendEffectColor(palette->bg, effect->color, opacity);
+        if (effect->kind == 2 || effect->kind == 3) {
+            color = effect->color;
+        } else {
+            opacity = BFClampInt(BF_Settings.clickEffectOpacity, 10, 100) * BFClampInt(fade, 0, 100) / 100;
+            color = BFBlendEffectColor(palette->bg, effect->color, opacity);
+        }
 
         if (effect->kind == 4) {
             BFDrawArrowEffect(dc, effect, color);
